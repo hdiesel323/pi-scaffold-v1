@@ -6,6 +6,8 @@ A comprehensive Pi Coding Agent project scaffold with production-ready extension
 
 **Built on [Pi Agent](https://pi.dev) by [Mario Zechner](https://github.com/disler).**
 
+Inspired by [pi-vs-claude-code](https://github.com/disler/pi-vs-claude-code).
+
 ## Why Pi Agent?
 
 | Feature | Claude Code | Pi Agent |
@@ -443,6 +445,8 @@ See `CLAUDE.md` for full conventions.
 ## Credits
 
 This scaffold was built to showcase the extensibility of [Pi Agent](https://pi.dev), created by **[Mario Zechner](https://github.com/disler)**.
+
+Inspired by the [pi-vs-claude-code](https://github.com/disler/pi-vs-claude-code) comparison and video.
 
 > "Pi is a minimal agentic coding tool built for engineers who want full control."
 
