@@ -87,6 +87,14 @@ just ext-agent-team     # Multi-agent dispatcher
 just ext-pi-pi         # Meta-agent builder
 ```
 
+### Inside Pi
+
+Once running in Pi, you can also use the `/prime` command to see an overview of this scaffold:
+```
+/prime
+```
+This will display the project purpose, structure, and key concepts.
+
 ---
 
 ## Extension Tiers
