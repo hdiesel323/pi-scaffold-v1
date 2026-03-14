@@ -21,7 +21,7 @@ interface HealthStatus {
 }
 
 export default function (pi: ExtensionAPI) {
-	const ui = pi.getUI();
+	const ui = pi.ui;
 
 	// ── Health Check Functions ───────────────────────────────────────────────
 

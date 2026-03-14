@@ -1,160 +1,132 @@
 /**
- * Sentry Integration Module
+ * Sentry Integration Module (Lightweight)
  *
- * Provides error tracking and performance monitoring for Pi extensions.
+ * Provides error tracking for Pi extensions via Sentry HTTP API.
+ * No SDK required - uses fetch to send events directly.
  *
- * Usage in extensions:
- *   import { initSentry, captureError, captureMessage } from "./lib/sentry.ts";
- *
- *   export default function (pi: ExtensionAPI) {
- *     initSentry(pi, {
- *       dsn: process.env.SENTRY_DSN,
- *       environment: process.env.NODE_ENV || "development",
- *     });
- *     // ... rest of extension
- *   }
+ * Usage:
+ *   import { captureError, captureMessage } from "./lib/sentry.ts";
  */
 
-import * as Sentry from "@sentry/node";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-
-export interface SentryConfig {
+interface SentryConfig {
 	dsn?: string;
 	environment?: string;
 	release?: string;
-	_sampleRate?: number;
-	tracesSampleRate?: number;
 }
 
+let config: SentryConfig = {};
 let initialized = false;
-let currentDsn: string | undefined;
 
-export function initSentry(pi: ExtensionAPI, config: SentryConfig): void {
-	if (initialized) return;
-
-	const dsn = config.dsn || process.env.SENTRY_DSN;
-
-	if (!dsn) {
-		pi.registerCommand("sentry-status", {
-			description: "Check Sentry status",
-			handler: async () => {
-				pi.getUI().notify("Sentry: No DSN configured (set SENTRY_DSN)", "warning");
-			},
-		});
-		return;
-	}
-
-	currentDsn = dsn;
-
-	Sentry.init({
-		dsn,
-		environment: config.environment || "development",
-		release: config.release || `pi-extensions@${getVersion()}`,
-		integrations: [
-			Sentry.httpIntegration(),
-			Sentry.onUncaughtExceptionIntegration(),
-			Sentry.onUnhandledRejectionIntegration(),
-		],
-		sampleRate: config._sampleRate || 0.1,
-		tracesSampleRate: config.tracesSampleRate || 0.1,
-		beforeSend(event) {
-			// Filter out non-error events
-			if (event.type === "transaction") {
-				return event;
-			}
-			if (!event.exception) {
-				return null;
-			}
-			return event;
-		},
-	});
-
-	initialized = true;
-
-	// Register /sentry-status command
-	pi.registerCommand("sentry-status", {
-		description: "Check Sentry status and configuration",
-		handler: async () => {
-			const status = {
-				initialized: Sentry.getCurrentHub().getClient()?.getOptions() ? true : false,
-				dsn: currentDsn ? maskDsn(currentDsn) : "not configured",
-				environment: Sentry.getCurrentHub().getClient()?.getOptions()?.environment || "unknown",
-			};
-			pi.getUI().notify(
-				`Sentry: ${status.initialized ? "connected" : "disconnected"} | DSN: ${status.dsn} | Env: ${status.environment}`,
-				status.initialized ? "info" : "warning",
-			);
-		},
-	});
-
-	pi.getUI().notify(`Sentry: Initialized (${maskDsn(dsn)})`, "info");
+export function initSentry(config_: SentryConfig): void {
+	config = config_;
+	initialized = !!config.dsn;
 }
 
-function getVersion(): string {
-	try {
-		const pkg = JSON.parse(Deno.readTextFileSync("package.json"));
-		return pkg.version || "0.0.0";
-	} catch {
-		return "0.0.0";
-	}
-}
-
-function maskDsn(dsn: string): string {
-	try {
-		const url = new URL(dsn);
-		if (url.username) {
-			return `${url.protocol}//${url.username.substring(0, 4)}***@${url.host}${url.pathname}`;
-		}
-		return dsn;
-	} catch {
-		return "***";
-	}
+export function isInitialized(): boolean {
+	return initialized;
 }
 
 export function captureError(error: Error, context?: Record<string, unknown>): void {
-	if (!initialized) return;
+	if (!initialized || !config.dsn) return;
 
-	Sentry.withScope((scope) => {
-		if (context) {
-			scope.setExtra("context", context);
-		}
-		Sentry.captureException(error);
-	});
+	const event = {
+		event_id: generateUUID(),
+		timestamp: new Date().toISOString(),
+		level: "error",
+		logger: "pi-agent",
+		platform: "other",
+		server_name: "pi-agent",
+		environment: config.environment || "development",
+		release: config.release || "pi-agent@1.0.0",
+		exception: {
+			values: [{
+				type: error.name || "Error",
+				value: error.message,
+				stacktrace: error.stack ? parseStackTrace(error.stack) : undefined,
+			}],
+		},
+		extra: context,
+	};
+
+	sendToSentry(event);
 }
 
-export function captureMessage(message: string, level: Sentry.SeverityLevel = "info"): void {
-	if (!initialized) return;
+export function captureMessage(message: string, level: string = "info"): void {
+	if (!initialized || !config.dsn) return;
 
-	Sentry.captureMessage(message, level);
+	const event = {
+		event_id: generateUUID(),
+		timestamp: new Date().toISOString(),
+		level,
+		logger: "pi-agent",
+		platform: "other",
+		server_name: "pi-agent",
+		environment: config.environment || "development",
+		release: config.release || "pi-agent@1.0.0",
+		message,
+	};
+
+	sendToSentry(event);
 }
 
 export function setUser(user: { id: string; email?: string; username?: string }): void {
-	if (!initialized) return;
-	Sentry.setUser(user);
+	// Not implemented in lightweight version
 }
 
 export function addBreadcrumb(breadcrumb: {
 	category?: string;
 	message?: string;
-	level?: Sentry.SeverityLevel;
+	level?: string;
 	data?: Record<string, unknown>;
 }): void {
-	if (!initialized) return;
-	Sentry.addBreadcrumb(breadcrumb);
+	// Not implemented in lightweight version
 }
 
-export function getTransaction(): Sentry.Transaction | undefined {
-	const hub = Sentry.getCurrentHub();
-	return hub.getScope()?.getTransaction();
+// ── Internal Helpers ─────────────────────────────────────────────
+
+function sendToSentry(event: Record<string, unknown>): void {
+	if (!config.dsn) return;
+
+	try {
+		const url = new URL(config.dsn);
+		const projectId = url.pathname.replace("/", "");
+		const endpoint = `${url.protocol}//${url.host}/api/${projectId}/store/?sentry_key=${url.username}`;
+
+		fetch(endpoint, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(event),
+		}).catch(() => {});
+	} catch {}
 }
 
-export function startSpan<T>(
-	options: Sentry.StartSpanOptions,
-	callback: (span: Sentry.Span) => T,
-): T {
-	return Sentry.startSpan(options, callback);
+function parseStackTrace(stack: string): { frames: Array<{ filename: string; function: string; lineno: number }> } {
+	const lines = stack.split("\n").slice(1);
+	const frames = lines.slice(0, 10).map((line) => {
+		const match = line.match(/at\s+(.+?)\s+\((.+?):(\d+):\d+\)/);
+		if (match) {
+			return {
+				function: match[1] || "unknown",
+				filename: match[2] || "unknown",
+				lineno: parseInt(match[3], 10) || 0,
+			};
+		}
+		const simpleMatch = line.match(/at\s+(.+)/);
+		return {
+			function: simpleMatch ? simpleMatch[1].trim() : "unknown",
+			filename: "unknown",
+			lineno: 0,
+		};
+	});
+	return { frames };
 }
 
-export function isInitialized(): boolean {
-	return initialized;
+function generateUUID(): string {
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+		const r = (Math.random() * 16) | 0;
+		const v = c === "x" ? r : (r & 0x3) | 0;
+		return v.toString(16);
+	});
 }

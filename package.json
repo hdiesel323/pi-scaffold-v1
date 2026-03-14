@@ -9,7 +9,6 @@
     "check:sentry": "sentry-cli releases propose-version"
   },
   "dependencies": {
-    "@sentry/node": "^8.55.0",
     "yaml": "^2.8.0"
   },
   "devDependencies": {
