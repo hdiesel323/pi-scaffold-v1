@@ -34,14 +34,19 @@ export default function (pi: ExtensionAPI) {
 		release: process.env.SENTRY_RELEASE || "pi-agent@1.0.0",
 	};
 
-	// Don't initialize without DSN
-	if (!options.dsn) {
-		pi.ui.notify("Sentry: No DSN (set SENTRY_DSN in .env)", "warning");
-		return;
-	}
+	// ── Notify on session start ───────────────────────────────────────────
+
+	pi.on("session_start", async (_event, ctx) => {
+		if (!options.dsn) {
+			ctx.ui.notify("Sentry: No DSN (set SENTRY_DSN in .env)", "warning");
+		} else {
+			ctx.ui.notify(`Sentry: Enabled (${maskDsn(options.dsn)})`, "info");
+		}
+	});
+
+	if (!options.dsn) return;
 
 	initialized = true;
-	pi.ui.notify(`Sentry: Enabled (${maskDsn(options.dsn)})`, "info");
 
 	// ── Error Capture Hooks ────────────────────────────────────────────────
 
@@ -71,32 +76,32 @@ export default function (pi: ExtensionAPI) {
 
 	pi.registerCommand("sentry-test", {
 		description: "Test Sentry by triggering a captured error",
-		handler: async () => {
+		handler: async (_args, ctx) => {
 			try {
 				throw new Error("Sentry test error");
 			} catch (err) {
 				captureException(err as Error, { command: "sentry-test" });
-				pi.ui.notify("Test error sent to Sentry", "info");
+				ctx.ui.notify("Test error sent to Sentry", "info");
 			}
 		},
 	});
 
 	pi.registerCommand("sentry-message", {
 		description: "Send a test message to Sentry",
-		handler: async () => {
+		handler: async (_args, ctx) => {
 			captureMessage("Test message from Pi extension", "info");
-			pi.ui.notify("Test message sent to Sentry", "info");
+			ctx.ui.notify("Test message sent to Sentry", "info");
 		},
 	});
 
 	pi.registerCommand("sentry-status", {
 		description: "Show Sentry connection status",
-		handler: async () => {
+		handler: async (_args, ctx) => {
 			if (!initialized) {
-				pi.ui.notify("Sentry: Not initialized", "warning");
+				ctx.ui.notify("Sentry: Not initialized", "warning");
 				return;
 			}
-			pi.ui.notify(
+			ctx.ui.notify(
 				`Sentry: Connected | Env: ${options.environment} | Release: ${options.release}`,
 				"success",
 			);
@@ -105,8 +110,8 @@ export default function (pi: ExtensionAPI) {
 
 	pi.registerCommand("sentry-flush", {
 		description: "Flush pending Sentry events",
-		handler: async () => {
-			pi.ui.notify("Sentry: Events sent synchronously", "info");
+		handler: async (_args, ctx) => {
+			ctx.ui.notify("Sentry: Events sent synchronously", "info");
 		},
 	});
 }
@@ -125,12 +130,12 @@ function captureException(error: Error, extra?: Record<string, string>): void {
 		server_name: "pi-agent",
 		environment: options.environment,
 		release: options.release,
-	_exception: [{
-		type: error.name || "Error",
-		value: error.message,
-		stacktrace: error.stack ? parseStackTrace(error.stack) : undefined,
-	}],
-	extra,
+		exception: [{
+			type: error.name || "Error",
+			value: error.message,
+			stacktrace: error.stack ? parseStackTrace(error.stack) : undefined,
+		}],
+		extra,
 	};
 
 	sendToSentry(event);

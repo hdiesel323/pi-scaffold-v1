@@ -53,6 +53,42 @@ just ext-sentry-agent-team
 
 ---
 
+## Quick Start (from Claude Code)
+
+Create and configure a new Pi scaffold project entirely from Claude Code, then exit to run with Pi:
+
+```
+# Tell Claude Code to clone and setup the scaffold
+git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-pi-agent
+cd my-pi-agent
+cp .env.sample .env
+code .   # or leave it open in your editor
+
+# Now exit Claude Code
+exit
+```
+
+Then in your terminal:
+```bash
+cd my-pi-agent
+
+# Edit .env and add your keys:
+# - ANTHROPIC_API_KEY=sk-ant-...
+# - SENTRY_DSN=https://...@sentry.io/...
+
+# Run Pi with extensions:
+just ext-sentry-agent-team
+```
+
+Or use a specific extension:
+```bash
+just ext-health-check    # Health check with Sentry status
+just ext-agent-team     # Multi-agent dispatcher
+just ext-pi-pi         # Meta-agent builder
+```
+
+---
+
 ## Extension Tiers
 
 ### Tier 1: Foundation (UI Customization)

@@ -21,8 +21,6 @@ interface HealthStatus {
 }
 
 export default function (pi: ExtensionAPI) {
-	const ui = pi.ui;
-
 	// ── Health Check Functions ───────────────────────────────────────────────
 
 	function checkApiKeys(): HealthStatus {
@@ -34,7 +32,6 @@ export default function (pi: ExtensionAPI) {
 		];
 
 		const configured = keys.filter((k) => k.env && k.env.length > 10);
-		const missing = keys.filter((k) => !k.env || k.env.length <= 10);
 
 		if (configured.length === 0) {
 			return {
@@ -89,7 +86,6 @@ export default function (pi: ExtensionAPI) {
 
 	function checkDependencies(): HealthStatus {
 		try {
-			// Check if bun_modules exists
 			const hasBunModules = checkFileExists("node_modules");
 			const hasPackageJson = checkFileExists("package.json");
 
@@ -131,7 +127,9 @@ export default function (pi: ExtensionAPI) {
 
 	function checkFileExists(path: string): boolean {
 		try {
-			return Deno.statSync(path) !== undefined;
+			const fs = require("node:fs");
+			fs.statSync(path);
+			return true;
 		} catch {
 			return false;
 		}
@@ -146,7 +144,7 @@ export default function (pi: ExtensionAPI) {
 			{ value: "sentry", label: "Check Sentry status" },
 			{ value: "env", label: "Show environment" },
 		],
-		handler: async (args) => {
+		handler: async (args, ctx) => {
 			const arg = args?.trim().toLowerCase();
 
 			const checks: HealthStatus[] = [];
@@ -168,7 +166,7 @@ export default function (pi: ExtensionAPI) {
 			if (arg) {
 				// Single check - show directly
 				const check = checks[0];
-				ui.notify(
+				ctx.ui.notify(
 					`${check.ok ? "✅" : "❌"} ${check.label}: ${check.details}`,
 					check.ok ? "info" : "warning",
 				);
@@ -180,7 +178,7 @@ export default function (pi: ExtensionAPI) {
 				const okCount = checks.filter((c) => c.ok).length;
 				const total = checks.length;
 
-				ui.notify(
+				ctx.ui.notify(
 					`Health: ${okCount}/${total} checks passed\n\n${summary}`,
 					okCount === total ? "success" : okCount > total / 2 ? "warning" : "error",
 				);
@@ -188,10 +186,10 @@ export default function (pi: ExtensionAPI) {
 		},
 	});
 
-	// Register status line item
+	// ── Status line + startup notify ──────────────────────────────────────
+
 	pi.on("session_start", async (_event, ctx) => {
 		ctx.ui.setStatus("health", "🟢");
+		ctx.ui.notify("Health check loaded. Use /health for full report", "info");
 	});
-
-	ui.notify("Health check loaded. Use /health for full report", "info");
 }
