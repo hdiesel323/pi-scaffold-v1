@@ -4,6 +4,8 @@
 
 A comprehensive Pi Coding Agent project scaffold with production-ready extension patterns, advanced multi-agent workflows, safety controls, themes, and built-in error tracking.
 
+**Built on [Pi Agent](https://pi.dev) by [Mario Zechner](https://github.com/disler).**
+
 ## Why Pi Agent?
 
 | Feature | Claude Code | Pi Agent |
@@ -429,7 +431,25 @@ See `CLAUDE.md` for full conventions.
 
 ## Resources
 
+- [Pi Agent](https://pi.dev) — Official website
 - [Pi Agent GitHub](https://github.com/mariozechner/pi-coding-agent)
+- [Mario Zechner](https://github.com/disler) — Creator of Pi
 - [Sentry Docs](https://docs.sentry.io)
 - [Bun](https://bun.sh)
 - [just](https://github.com/casey/just)
+
+---
+
+## Credits
+
+This scaffold was built to showcase the extensibility of [Pi Agent](https://pi.dev), created by **[Mario Zechner](https://github.com/disler)**.
+
+> "Pi is a minimal agentic coding tool built for engineers who want full control."
+
+Thank you Mario for building such an incredible, customizable foundation for agentic engineering.
+
+---
+
+## License
+
+MIT — Fork, customize, and make it yours.
