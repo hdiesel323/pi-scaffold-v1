@@ -129,18 +129,22 @@ export default function (pi: ExtensionAPI) {
 			}
 			options.dsn = validation.dsn;
 			options.valid = true;
+			ctx.ui.setStatus("sentry", "◉ Sentry");
 			ctx.ui.notify(`Sentry: DSN set to ${maskDsn(options.dsn!)}`, "success");
 		},
 	});
 
-	// ── Session start notification ─────────────────────────────────────────
+	// ── Session start notification + status bar ───────────────────────────────
 
 	pi.on("session_start", async (_event, ctx) => {
 		if (!options.dsn) {
+			ctx.ui.setStatus("sentry", "⚠ Sentry: no DSN");
 			ctx.ui.notify("Sentry: No DSN (add SENTRY_DSN to .env)", "warning");
 		} else if (!options.valid) {
+			ctx.ui.setStatus("sentry", "⚠ Sentry: invalid DSN");
 			ctx.ui.notify("Sentry: Invalid DSN format. Check .env", "error");
 		} else {
+			ctx.ui.setStatus("sentry", "◉ Sentry");
 			ctx.ui.notify(`Sentry: Enabled (${maskDsn(options.dsn)})`, "info");
 		}
 	});
