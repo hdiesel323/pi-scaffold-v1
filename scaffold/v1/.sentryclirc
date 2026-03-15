@@ -1,0 +1,12 @@
+{
+  "org": "",
+  "project": "",
+  "sourcemaps": {
+    "include": ["./dist"],
+    "ignore": ["node_modules", "tests", "*.test.ts"]
+  },
+  "tracesSampleRate": 0.1,
+  "maxSpans": 1000,
+  "attachStackTrace": true,
+  "contextLines": 5
+}
