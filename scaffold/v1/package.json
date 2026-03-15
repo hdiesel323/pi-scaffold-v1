@@ -1,0 +1,17 @@
+{
+  "name": "{{project-name}}",
+  "private": true,
+  "type": "module",
+  "description": "Pi Coding Agent extension playground",
+  "scripts": {
+    "sentry:sourcemaps": "sentry-sourcemaps",
+    "sentry:release": "sentry-cli releases",
+    "check:sentry": "sentry-cli releases propose-version"
+  },
+  "dependencies": {
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@sentry/cli": "^2.38.0"
+  }
+}
