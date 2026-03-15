@@ -1,19 +1,15 @@
 /**
- * Sentry Middleware — Lightweight error tracking without Sentry SDK
+ * Sentry Example — Demonstrates error tracking in Pi extensions
  *
- * Load this FIRST in your extension stack to enable error tracking:
- *   pi -e extensions/sentry.ts -e extensions/other-extension.ts
+ * This is a lightweight example using Sentry's HTTP API directly.
+ * For production use, load sentry.ts as middleware instead.
  *
- * Uses Sentry's HTTP API directly (no SDK required).
- * Automatically captures:
- * - Tool execution errors
- * - Command errors
- * - Agent errors
+ * Usage: pi -e extensions/sentry-example.ts -e extensions/minimal.ts
  *
- * Setup:
- *   SENTRY_DSN=https://abc123@o4507818.ingest.us.sentry.io/4507818000000000
- *   SENTRY_ORG=your-org
- *   SENTRY_PROJECT=your-project
+ * Commands:
+ *   /sentry-test      — Trigger a test error
+ *   /sentry-message   — Capture a test message
+ *   /sentry-status    — Check Sentry configuration
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -31,28 +27,14 @@ let options: SentryOptions = { valid: false };
 function validateDsn(dsn: string | undefined): { dsn: string | undefined; valid: boolean } {
 	if (!dsn) return { dsn: undefined, valid: false };
 
-	// Check for placeholder patterns
-	const placeholderPatterns = [
-		"https://...",
-		"http://...",
-		"YOUR_",
-		"your-",
-		".sentry.io/",
-	];
-
+	const placeholderPatterns = ["https://...", "http://...", "YOUR_", "your-", ".sentry.io/"];
 	for (const pattern of placeholderPatterns) {
-		if (dsn.includes(pattern)) {
-			return { dsn: undefined, valid: false };
-		}
+		if (dsn.includes(pattern)) return { dsn: undefined, valid: false };
 	}
 
-	// Try to parse as URL
 	try {
 		const url = new URL(dsn);
-		// Must have a username (the API key) and a valid hostname
-		if (!url.username || url.username.length < 5) {
-			return { dsn: undefined, valid: false };
-		}
+		if (!url.username || url.username.length < 5) return { dsn: undefined, valid: false };
 		return { dsn, valid: true };
 	} catch {
 		return { dsn: undefined, valid: false };
@@ -68,45 +50,44 @@ export default function (pi: ExtensionAPI) {
 		valid: validation.valid,
 	};
 
-	// ── Register commands ALWAYS (even without valid DSN) ─────────────────────
-
+	// Register commands (always, regardless of DSN validity)
 	pi.registerCommand("sentry-test", {
-		description: "Test Sentry by triggering a captured error",
+		description: "Trigger a test error to verify Sentry integration",
 		handler: async (_args, ctx) => {
 			if (!options.valid) {
 				ctx.ui.notify("Sentry: DSN not configured or invalid. Check .env", "warning");
 				return;
 			}
 			try {
-				throw new Error("Sentry test error");
+				throw new Error("This is a test error from sentry-example extension");
 			} catch (err) {
-				captureException(err as Error, { command: "sentry-test" });
-				ctx.ui.notify("Test error sent to Sentry", "info");
+				captureException(err as Error, { command: "sentry-test", extension: "sentry-example" });
+				ctx.ui.notify("Test error captured (check Sentry dashboard)", "info");
 			}
 		},
 	});
 
 	pi.registerCommand("sentry-message", {
-		description: "Send a test message to Sentry",
+		description: "Capture a test message to Sentry",
 		handler: async (_args, ctx) => {
 			if (!options.valid) {
-				ctx.ui.notify("Sentry: DSN not configured or invalid. Check .env", "warning");
+				ctx.ui.notify("Sentry: DSN not configured or invalid", "warning");
 				return;
 			}
-			captureMessage("Test message from Pi extension", "info");
-			ctx.ui.notify("Test message sent to Sentry", "info");
+			captureMessage("Test message from sentry_example extension", "info");
+			ctx.ui.notify("Test message captured", "info");
 		},
 	});
 
 	pi.registerCommand("sentry-status", {
-		description: "Show Sentry connection status",
+		description: "Check Sentry configuration status",
 		handler: async (_args, ctx) => {
 			if (!options.dsn) {
-				ctx.ui.notify("Sentry: Not configured. Add valid SENTRY_DSN to .env", "warning");
+				ctx.ui.notify("Sentry: Not configured. Add SENTRY_DSN to .env", "warning");
 				return;
 			}
 			if (!options.valid) {
-				ctx.ui.notify("Sentry: Invalid DSN. Check format: https://key@host/project", "error");
+				ctx.ui.notify("Sentry: Invalid DSN format", "error");
 				return;
 			}
 			ctx.ui.notify(
@@ -116,68 +97,30 @@ export default function (pi: ExtensionAPI) {
 		},
 	});
 
-	pi.registerCommand("sentry-set-dsn", {
-		description: "Set Sentry DSN for this session: /sentry-set-dsn <dsn>",
-		handler: async (args, ctx) => {
-			if (!args) {
-				ctx.ui.notify("Usage: /sentry-set-dsn https://key@host/project", "warning");
-				return;
-			}
-			const validation = validateDsn(args.trim());
-			if (!validation.valid) {
-				ctx.ui.notify("Invalid DSN format. Expected: https://key@host/project", "error");
-				return;
-			}
-			options.dsn = validation.dsn;
-			options.valid = true;
-			ctx.ui.setStatus("sentry", "◉ Sentry");
-			ctx.ui.notify(`Sentry: DSN set to ${maskDsn(options.dsn!)}`, "success");
-		},
-	});
-
-	// ── Session start notification + status bar ───────────────────────────────
-
+	// Session start notification
 	pi.on("session_start", async (_event, ctx) => {
 		applyExtensionDefaults(import.meta.url, ctx);
 
 		if (!options.dsn) {
-			ctx.ui.setStatus("sentry", "⚠ Sentry: no DSN");
 			ctx.ui.notify("Sentry: No DSN (add SENTRY_DSN to .env)", "warning");
 		} else if (!options.valid) {
-			ctx.ui.setStatus("sentry", "⚠ Sentry: invalid DSN");
 			ctx.ui.notify("Sentry: Invalid DSN format. Check .env", "error");
 		} else {
-			ctx.ui.setStatus("sentry", "◉ Sentry");
 			ctx.ui.notify(`Sentry: Enabled (${maskDsn(options.dsn)})`, "info");
 		}
 	});
 
-	// ── Early return if no valid DSN ───────────────────────────────────────
-
+	// Auto-capture errors if DSN is valid
 	if (!options.valid) return;
-
-	// ── Error Capture Hooks ────────────────────────────────────────────────
 
 	pi.on("tool_execution_error", (event) => {
 		const error = event.error || new Error(String(event));
-		captureException(error, {
-			tool: event.toolName,
-			input: JSON.stringify(event.input).substring(0, 500),
-		});
+		captureException(error, { tool: event.toolName });
 	});
 
 	pi.on("command_error", (event) => {
 		const error = event.error || new Error(String(event));
-		captureException(error, {
-			command: event.command,
-		});
-	});
-
-	pi.on("agent_error", (event) => {
-		const error = event.error || new Error(String(event));
-		captureException(error, {
-			phase: event.phase,
-		});
+		captureException(error, { command: event.command });
 	});
 }
 
@@ -190,7 +133,7 @@ function captureException(error: Error, extra?: Record<string, string>): void {
 		event_id: generateUUID(),
 		timestamp: new Date().toISOString(),
 		level: "error",
-		logger: "pi-agent",
+		logger: "pi-agent-example",
 		platform: "other",
 		server_name: "pi-agent",
 		environment: options.environment,
@@ -213,7 +156,7 @@ function captureMessage(message: string, level: string = "info"): void {
 		event_id: generateUUID(),
 		timestamp: new Date().toISOString(),
 		level,
-		logger: "pi-agent",
+		logger: "pi-agent-example",
 		platform: "other",
 		server_name: "pi-agent",
 		message,
@@ -234,24 +177,14 @@ function sendToSentry(event: Record<string, unknown>): void {
 
 		fetch(endpoint, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(event),
-		}).then((res) => {
-			if (!res.ok) {
-				console.error(`[Sentry] HTTP ${res.status}: ${res.statusText}`);
-			}
-		}).catch((err) => {
-			console.error(`[Sentry] Network error: ${err.message}`);
-		});
-	} catch (err) {
-		console.error(`[Sentry] Error: ${(err as Error).message}`);
-	}
+		}).catch(() => {});
+	} catch {}
 }
 
 function parseStackTrace(stack: string): { frames: Array<{ filename: string; function: string; lineno: number }> } {
-	const lines = stack.split("\n").slice(1); // Skip Error message line
+	const lines = stack.split("\n").slice(1);
 	const frames = lines.slice(0, 10).map((line) => {
 		const match = line.match(/at\s+(.+?)\s+\((.+?):(\d+):\d+\)/);
 		if (match) {
@@ -261,7 +194,6 @@ function parseStackTrace(stack: string): { frames: Array<{ filename: string; fun
 				lineno: parseInt(match[3], 10) || 0,
 			};
 		}
-		// Handle "at <anonymous>" format
 		const simpleMatch = line.match(/at\s+(.+)/);
 		return {
 			function: simpleMatch ? simpleMatch[1].trim() : "unknown",
@@ -270,8 +202,7 @@ function parseStackTrace(stack: string): { frames: Array<{ filename: string; fun
 		};
 	});
 
-	// Sentry expects frames in reverse order (callee first = oldest frame first)
-	return { frames: frames.reverse() };
+	return { frames };
 }
 
 function maskDsn(dsn: string): string {
@@ -284,13 +215,9 @@ function maskDsn(dsn: string): string {
 }
 
 function generateUUID(): string {
-	// RFC 4122 variant: set bits 6 and 7 (clock_seq_hi_and_reserved)
 	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
 		const r = (Math.random() * 16) | 0;
-		if (c === "x") {
-			return r.toString(16);
-		}
-		// RFC 4122: variant bits = 10xx (bits 6 & 7 set)
-		return (r & 0x3 | 0x8).toString(16);
+		const v = c === "x" ? r : (r & 0x3) | 0;
+		return v.toString(16);
 	});
 }
