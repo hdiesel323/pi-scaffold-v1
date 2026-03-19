@@ -97,6 +97,93 @@ This will display the project purpose, structure, and key concepts.
 
 ---
 
+## New Project — Full Scaffold Install
+
+For new Pi Agent projects, clone the full scaffold:
+
+```bash
+# Clone the scaffold
+git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-pi-agent
+cd my-pi-agent
+
+# Copy environment template
+cp .env.sample .env
+
+# Add your API keys to .env:
+# - OPENAI_API_KEY=sk-...
+# - ANTHROPIC_API_KEY=sk-ant-...
+# - GEMINI_API_KEY=AIza...
+# - SENTRY_DSN=https://...@sentry.io/...  (optional)
+
+# Run with extensions
+just ext-sentry-agent-team   # Full stack with error tracking
+just ext-minimal             # Bare-bones config
+just ext-agent-team          # Multi-agent dispatcher
+```
+
+---
+
+## Existing Project — Brownfield Setup
+
+For projects that already exist, add Pi extensions without cloning the full scaffold:
+
+```bash
+cd /your-existing-project
+
+# 1. Copy the justfile (or just the recipes you need)
+cp ~/Documents/pi-scaffold-v1/justfile .
+
+# 2. Copy the extensions you want to use
+mkdir -p extensions
+cp ~/Documents/pi-scaffold-v1/extensions/minimal.ts extensions/
+cp ~/Documents/pi-scaffold-v1/extensions/sentry.ts extensions/
+# Copy other extensions as needed (see Extension Reference below)
+
+# 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
+mkdir -p .pi/agents
+cp ~/Documents/pi-scaffold-v1/.pi/agents/*.md .pi/agents/
+
+# 4. Copy teams config (REQUIRED for agent-team)
+cp ~/Documents/pi-scaffold-v1/.pi/agents/teams.yaml .pi/agents/
+
+# 5. Add environment config
+cp ~/Documents/pi-scaffold-v1/.env.sample .env
+# Edit .env with your actual API keys
+
+# 6. Optional: Copy themes you like
+mkdir -p .pi/themes
+cp ~/Documents/pi-scaffold-v1/.pi/themes/*.json .pi/themes/
+```
+
+Now run with your extensions:
+```bash
+source .env && pi -e extensions/minimal.ts
+# or with Sentry:
+source .env && pi -e extensions/sentry.ts -e extensions/minimal.ts
+# or with agent-team:
+source .env && just ext-agent-team
+```
+
+### Brownfield — Extension-Only Imports
+
+If you only want specific extensions, you can copy just those files:
+
+```bash
+# Pick and choose what you need:
+extensions/
+  minimal.ts          # Basic config (model, context blocks)
+  sentry.ts           # Error tracking
+  agent-team.ts       # Multi-agent dispatcher
+  agent-chain.ts      # Sequential pipeline
+  health-check.ts    # /health command
+  theme-cycler.ts    # Theme switching
+  ...
+```
+
+Each extension is self-contained — just copy the `.ts` file and run `pi -e extensions/that-file.ts`.
+
+---
+
 ## Extension Tiers
 
 ### Tier 1: Foundation (UI Customization)
