@@ -137,12 +137,20 @@ cp ~/Documents/pi-scaffold-v1/justfile .
 mkdir -p extensions
 cp ~/Documents/pi-scaffold-v1/extensions/minimal.ts extensions/
 cp ~/Documents/pi-scaffold-v1/extensions/sentry.ts extensions/
+# Copy other extensions as needed (see Extension Reference below)
 
-# 3. Add environment config
+# 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
+mkdir -p .pi/agents
+cp ~/Documents/pi-scaffold-v1/.pi/agents/*.md .pi/agents/
+
+# 4. Copy teams config (REQUIRED for agent-team)
+cp ~/Documents/pi-scaffold-v1/.pi/agents/teams.yaml .pi/agents/
+
+# 5. Add environment config
 cp ~/Documents/pi-scaffold-v1/.env.sample .env
 # Edit .env with your actual API keys
 
-# 4. Optional: Copy themes you like
+# 6. Optional: Copy themes you like
 mkdir -p .pi/themes
 cp ~/Documents/pi-scaffold-v1/.pi/themes/*.json .pi/themes/
 ```
@@ -152,6 +160,8 @@ Now run with your extensions:
 source .env && pi -e extensions/minimal.ts
 # or with Sentry:
 source .env && pi -e extensions/sentry.ts -e extensions/minimal.ts
+# or with agent-team:
+source .env && just ext-agent-team
 ```
 
 ### Brownfield — Extension-Only Imports
