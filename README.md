@@ -87,13 +87,15 @@ just ext-agent-team     # Multi-agent dispatcher
 just ext-pi-pi         # Meta-agent builder
 ```
 
-### Inside Pi
+### Inside Claude Code (not Pi)
 
-Once running in Pi, you can also use the `/prime` command to see an overview of this scaffold:
+The `/prime` command works in **Claude Code**, not Pi. From Claude Code:
+
 ```
 /prime
 ```
-This will display the project purpose, structure, and key concepts.
+
+This loads foundational context for the scaffold.
 
 ---
 
@@ -142,6 +144,7 @@ cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/sentry.ts extensions/
 # 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
 mkdir -p .pi/agents
 cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/*.md .pi/agents/
+cp -r /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/pi-pi .pi/agents/
 
 # 4. Copy teams config (REQUIRED for agent-team)
 cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/teams.yaml .pi/agents/
