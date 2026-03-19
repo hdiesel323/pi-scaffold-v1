@@ -131,28 +131,28 @@ For projects that already exist, add Pi extensions without cloning the full scaf
 cd /your-existing-project
 
 # 1. Copy the justfile (or just the recipes you need)
-cp ~/Documents/pi-scaffold-v1/justfile .
+cp /Users/admin/pi-vs-cc/scaffold/v1/justfile .
 
 # 2. Copy the extensions you want to use
 mkdir -p extensions
-cp ~/Documents/pi-scaffold-v1/extensions/minimal.ts extensions/
-cp ~/Documents/pi-scaffold-v1/extensions/sentry.ts extensions/
+cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/minimal.ts extensions/
+cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/sentry.ts extensions/
 # Copy other extensions as needed (see Extension Reference below)
 
 # 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
 mkdir -p .pi/agents
-cp ~/Documents/pi-scaffold-v1/.pi/agents/*.md .pi/agents/
+cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/*.md .pi/agents/
 
 # 4. Copy teams config (REQUIRED for agent-team)
-cp ~/Documents/pi-scaffold-v1/.pi/agents/teams.yaml .pi/agents/
+cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/teams.yaml .pi/agents/
 
 # 5. Add environment config
-cp ~/Documents/pi-scaffold-v1/.env.sample .env
+cp /Users/admin/pi-vs-cc/scaffold/v1/.env.sample .env
 # Edit .env with your actual API keys
 
 # 6. Optional: Copy themes you like
 mkdir -p .pi/themes
-cp ~/Documents/pi-scaffold-v1/.pi/themes/*.json .pi/themes/
+cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/themes/*.json .pi/themes/
 ```
 
 Now run with your extensions:
