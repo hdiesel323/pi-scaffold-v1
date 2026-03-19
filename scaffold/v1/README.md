@@ -87,13 +87,15 @@ just ext-agent-team     # Multi-agent dispatcher
 just ext-pi-pi         # Meta-agent builder
 ```
 
-### Inside Pi
+### Inside Claude Code (not Pi)
 
-Once running in Pi, you can also use the `/prime` command to see an overview of this scaffold:
+The `/prime` command works in **Claude Code**, not Pi. From Claude Code:
+
 ```
 /prime
 ```
-This will display the project purpose, structure, and key concepts.
+
+This loads foundational context for the scaffold.
 
 ---
 
