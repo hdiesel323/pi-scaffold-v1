@@ -475,6 +475,46 @@ pi -e extensions/subagent-widget.ts -e extensions/pure-focus.ts -e extensions/th
 
 ---
 
+## Bolt-Ons
+
+Extend your Pi project with pre-built agent collections.
+
+### Agency Full (100+ agents)
+
+The **agency-full** bolt-on adds the full [agency-agents](https://github.com/msitarzewski/agency-agents) collection (54k stars):
+
+```bash
+# Install to existing project
+cd bolt-ons/agency-full
+./install.sh /your/project
+```
+
+Includes:
+- Engineering (9 agents): frontend, backend, mobile, AI, DevOps, security...
+- Sales (4 agents): outbound, deals, pipeline, account strategy
+- Design (2 agents): UI, UX
+- Marketing (2 agents): growth, SEO
+- Product (2 agents): prioritization, research
+- Testing (2 agents): QA, accessibility
+- Specialized (2 agents): MCP, docs
+
+**Total: 23 core agents (expandable to 100+)**
+
+### Creating Your Own Bolt-On
+
+```bash
+bolt-ons/
+  your-bolt-on/
+    .pi/
+      agents/           # Agent definitions
+      teams.yaml        # Team configuration
+    extensions/         # Custom extensions
+    install.sh         # Installation script
+    README.md          # Documentation
+```
+
+---
+
 ## Project Structure
 
 ```
