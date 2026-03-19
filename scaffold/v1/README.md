@@ -35,6 +35,35 @@ Inspired by [pi-vs-claude-code](https://github.com/disler/pi-vs-claude-code).
 
 ---
 
+## Multi-Model Support
+
+Pi supports **20+ providers** natively. Configure your API keys in `.env`:
+
+| Provider | Env Var | Example Model |
+|----------|---------|---------------|
+| Anthropic | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6` |
+| OpenAI | `OPENAI_API_KEY` | `gpt-4o` |
+| Google | `GEMINI_API_KEY` | `gemini-2.0-flash` |
+| MiniMax | `MINIMAX_API_KEY` | `minimax/chatgpt-o3-mini` |
+| ZAI | `ZAI_API_KEY` | `zai/Bests` |
+| Groq | `GROQ_API_KEY` | `groq/llama-3.3-70b` |
+| xAI | `XAI_API_KEY` | `xai/grok-2` |
+| OpenRouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` |
+
+### Switching Models
+
+```bash
+# At runtime with flag
+pi --model minimax/chatgpt-o3-mini
+pi --model zai/Bests
+pi --model groq/llama-3.3-70b
+
+# Or use /model command in Pi
+/model groq/llama-3.3-70b
+```
+
+---
+
 ## Quick Start
 
 ```bash
@@ -115,6 +144,10 @@ cp .env.sample .env
 # - OPENAI_API_KEY=sk-...
 # - ANTHROPIC_API_KEY=sk-ant-...
 # - GEMINI_API_KEY=AIza...
+# - MINIMAX_API_KEY=...
+# - ZAI_API_KEY=...
+# - GROQ_API_KEY=...
+# - XAI_API_KEY=...
 # - SENTRY_DSN=https://...@sentry.io/...  (optional)
 
 # Run with extensions
