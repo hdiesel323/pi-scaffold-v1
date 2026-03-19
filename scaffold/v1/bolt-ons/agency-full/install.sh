@@ -12,7 +12,7 @@
 #   ./install.sh ~/my-pi-project
 #
 
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TARGET_DIR="${1:-.}"
@@ -46,8 +46,15 @@ fetch_agent() {
     local dst="$2"
     local name=$(basename "$src" .md)
 
-    if gh api "$REPO/contents/$src" -q '.content' 2>/dev/null | base64 -D -o "$dst" 2>/dev/null; then
-        echo "  ✓ $name"
+    # Use raw GitHub URL instead of API (more reliable)
+    local url="https://raw.githubusercontent.com/$REPO/main/$src"
+    if curl -sSL "$url" -o "$dst" 2>/dev/null; then
+        if [ -s "$dst" ]; then
+            echo "  ✓ $name"
+        else
+            echo "  ✗ $name (empty)"
+            rm -f "$dst"
+        fi
     else
         echo "  ✗ $name (failed)"
     fi
