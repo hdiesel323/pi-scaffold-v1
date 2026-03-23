@@ -149,7 +149,22 @@ open +exts:
     escaped="${escaped//\"/\\\"}"
     osascript -e "tell application \"Terminal\" to do script \"$escaped\""
 
-# Open every extension in its own terminal window
+# Validate all extensions for basic syntax and dependency correctness
+validate-extensions:
+    bun test tests/unit/extensions.test.ts
+
+# Finalize a release (vX.Y.Z)
+release version:
+    #!/usr/bin/env bash
+    echo "{{version}}" > VERSION
+    # Update package.json using perl to avoid complex JSON parsing dependencies
+    perl -pi -e 's/"version": ".*?"/"version": "{{version}}"/' package.json
+    git add VERSION package.json CHANGELOG.md
+    git commit -m "chore(release): v{{version}}"
+    git tag -a "v{{version}}" -m "Release v{{version}}"
+    echo "✅ Version {{version}} tagged. Run 'git push origin main --tags' to publish."
+
+# OpenEvery extension in its own terminal window
 all:
     just open pi
     just open pure-focus

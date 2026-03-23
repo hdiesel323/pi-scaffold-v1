@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Agent Chain — Sequential pipeline orchestrator
  *
  * Runs opinionated, repeatable agent workflows. Chains are defined in

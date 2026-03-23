@@ -1,8 +1,8 @@
-# Pi Scaffold — Production-Ready Pi Agent Extensions
+# {{PROJECT_NAME}} — Production-Ready Pi Agent Extensions
 
 > "There are many coding agents, but this one is mine."
 
-A comprehensive Pi Coding Agent project scaffold with production-ready extension patterns, advanced multi-agent workflows, safety controls, themes, and built-in error tracking.
+A comprehensive Pi Coding Agent project scaffold for {{PROJECT_NAME}} with production-ready extension patterns, advanced multi-agent workflows, safety controls, themes, and built-in error tracking.
 
 This README describes the generated project template contained in `v1/`.
 

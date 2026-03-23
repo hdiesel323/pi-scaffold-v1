@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Subagent Widget — /sub, /subclear, /subrm, /subcont commands with stacking live widgets
  *
  * Each /sub spawns a background Pi subagent with its own persistent session,

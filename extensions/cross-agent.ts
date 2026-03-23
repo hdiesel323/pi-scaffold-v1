@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Cross-Agent — Load commands, skills, and agents from other AI coding agents
  *
  * Scans .claude/, .gemini/, .codex/ directories (project + global) for:

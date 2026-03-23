@@ -15,8 +15,13 @@ Follow these steps to get Pi running on your machine.
 ### Step 1: One-Time Setup (The Toolkit)
 First, clone this toolkit to your home directory. You only need to do this **once**.
 ```bash
+# HTTPS
 git clone https://github.com/hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
+
+# OR SSH (recommended for remote/CI environments)
+git clone git@github.com:hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
 ```
+Already cloned? Pull the latest: `cd ~/pi-scaffold && git pull`
 
 ---
 
@@ -33,12 +38,13 @@ cd my-new-agent
 #### Path B: Add to an EXISTING Project
 Use this to add Pi configuration to a project you are already working on.
 ```bash
-# 1. Go to your project folder
-cd ~/Documents/my-work-project
+# 1. Navigate to your existing project
+cd /path/to/your-project
 
-# 2. Run the injector (ensure you point to where you cloned it in Step 1)
+# 2. Inject Pi configuration (your existing files won't be overwritten)
 ~/pi-scaffold/init.sh --brownfield .
 ```
+> **What this does:** Copies Pi extensions, agent configs, themes, and tooling into your project. Existing files are never overwritten — if a file already exists, it's skipped. Your `justfile` will have Pi recipes appended (not replaced).
 
 ---
 

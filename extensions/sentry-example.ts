@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Sentry Example — Demonstrates error tracking in Pi extensions
  *
  * This is a lightweight example using Sentry's HTTP API directly.

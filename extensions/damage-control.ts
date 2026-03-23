@@ -1,3 +1,8 @@
+/**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
 import type { ExtensionAPI, ToolCallEvent } from "@mariozechner/pi-coding-agent";
 import { isToolCallEventType } from "@mariozechner/pi-coding-agent";
 import { parse as yamlParse } from "yaml";

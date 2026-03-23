@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Agent Team — Dispatcher-only orchestrator with grid dashboard
  *
  * The primary Pi agent has NO codebase tools. It can ONLY delegate work

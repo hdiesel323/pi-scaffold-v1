@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Pi Scaffold (pi-vs-cc)
+# License: MIT
+# Copyright (c) 2026 Pi Scaffold Maintainers
 #
 # Pi Project Scaffold — init.sh
 #

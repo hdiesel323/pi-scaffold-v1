@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Purpose Gate — Forces the engineer to declare intent before working
  *
  * On session start, immediately asks "What is the purpose of this agent?"

@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Tool Counter — Rich two-line custom footer
  *
  * Line 1: model + context meter on left, tokens in/out + cost on right

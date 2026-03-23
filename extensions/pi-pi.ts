@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Pi Pi — Meta-agent that builds Pi agents
  *
  * A team of domain-specific research experts (extensions, themes, skills,

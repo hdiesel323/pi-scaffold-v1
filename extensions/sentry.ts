@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Sentry Middleware — Lightweight error tracking without Sentry SDK
  *
  * Load this FIRST in your extension stack to enable error tracking:

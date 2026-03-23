@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Tool Counter Widget — Tool call counts in a widget above the editor
  *
  * Shows a persistent, live-updating widget with per-tool background colors.

@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * System Select — Switch the system prompt via /system
  *
  * Scans .pi/agents/, .claude/agents/, .gemini/agents/, .codex/agents/

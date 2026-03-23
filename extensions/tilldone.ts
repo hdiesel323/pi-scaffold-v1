@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * TillDone Extension — Work Till It's Done
  *
  * A task-driven discipline extension. The agent MUST define what it's going

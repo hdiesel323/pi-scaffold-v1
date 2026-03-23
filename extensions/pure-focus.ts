@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Pure Focus — Strip all footer and status line UI
  *
  * Removes the footer bar and status line entirely, leaving only

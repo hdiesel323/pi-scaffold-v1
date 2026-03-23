@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Theme Cycler — Keyboard shortcuts to cycle through available themes
  *
  * Shortcuts:

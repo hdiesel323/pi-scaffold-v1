@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Minimal — Model name + context meter in a compact footer
  *
  * Shows model ID and a 10-block context usage bar: [###-------] 30%

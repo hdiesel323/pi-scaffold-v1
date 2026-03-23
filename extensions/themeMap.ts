@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * themeMap.ts — Per-extension default theme assignments
  *
  * Themes live in .pi/themes/ and are mapped by extension filename (no extension).

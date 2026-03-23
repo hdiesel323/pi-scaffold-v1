@@ -1,4 +1,9 @@
 /**
+ * Pi Scaffold (pi-vs-cc)
+ * License: MIT
+ * Copyright (c) 2026 Pi Scaffold Maintainers
+ */
+/**
  * Health Check — System status monitoring with Sentry integration
  *
  * Provides /health command to check system status, API keys, and Sentry connectivity.
