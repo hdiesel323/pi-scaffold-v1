@@ -51,8 +51,16 @@ check_command "bun" "Install from https://bun.sh"
 check_command "just" "Install with 'brew install just' or your package manager"
 
 # 3. Environment / Auth
+AUTH_FOUND=false
+
+# 3a. Check for OAuth (Recommended)
+if [[ -f "$HOME/.pi/agent/auth.json" ]]; then
+  success "OAuth configuration found in ~/.pi/agent/auth.json"
+  AUTH_FOUND=true
+fi
+
+# 3b. Check for API Keys in .env
 if [[ -f ".env" ]]; then
-  success ".env file found"
   # Check for common provider keys (without printing them!)
   FOUND_KEYS=0
   for key in ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_GENERATIVE_AI_API_KEY; do
@@ -62,11 +70,16 @@ if [[ -f ".env" ]]; then
   done
   if [[ $FOUND_KEYS -gt 0 ]]; then
     success "Found $FOUND_KEYS provider API keys in .env"
-  else
-    warn "No common provider API keys found in .env"
+    AUTH_FOUND=true
   fi
+fi
+
+if [[ "$AUTH_FOUND" == "false" ]]; then
+  warn "No authentication found."
+  info "  Option 1 (OAuth): Run '/login <provider>' inside Pi (e.g. /login anthropic)"
+  info "  Option 2 (API Key): Add keys to .env (see .env.sample)"
 else
-  warn ".env file missing — use 'cp .env.sample .env' to start"
+  success "Authentication is configured."
 fi
 
 # 4. Project Assets
@@ -81,7 +94,7 @@ done
 
 echo "────────────────────────────────"
 if [[ $EXIT_CODE -eq 0 ]]; then
-  success "Environment looks good! Run 'just pi' to start."
+  success "Environment looks good! Run 'just team-pi' to start."
 else
   error "Found issues that may prevent Pi from working correctly."
 fi
