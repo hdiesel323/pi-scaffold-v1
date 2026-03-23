@@ -74,10 +74,10 @@ cd my-new-agent
 ```
 
 ### 2. Existing (Brownfield) Project
-To add Pi configuration and extensions to an existing repository:
+To add Pi to an existing repository, clone this scaffold elsewhere and run:
 ```bash
-# Clone this scaffold alongside or inside your repo
-./init.sh --brownfield .
+cd /path/to/your-project
+/path/to/pi-scaffold/init.sh --brownfield .
 ```
 
 ### 3. Diagnose & Setup
