@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Pi Project Scaffold — init.sh
+# Pi Swarm — init.sh
 #
 # Creates a new Pi project or adds Pi to an existing one (brownfield).
 #
@@ -19,7 +19,7 @@ NC='\033[0m'
 # ── Help ───────────────────────────────────────────────────────────────────
 
 show_help() {
-  echo "Pi Project Scaffold — Bootstrap or extend your project with Pi."
+  echo "Pi Swarm — Bootstrap or extend your project with Pi."
   echo ""
   echo "Usage:"
   echo "  New Project:      $0 <project-name> [target-parent]"

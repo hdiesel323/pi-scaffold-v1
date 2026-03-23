@@ -1,0 +1,39 @@
+{
+  "projectName": "Pi Swarm",
+  "version": "1.2.0",
+  "status": "active",
+  "currentTaskId": null,
+  "tasks": [
+    {
+      "id": "v1.0.0-foundation",
+      "title": "Phase 1: Foundational Extension Suite & Agent Definitions",
+      "status": "done",
+      "priority": "P0"
+    },
+    {
+      "id": "v1.1.0-swarm-power-suite",
+      "title": "Phase 2: Swarm & Power Suite Implementation",
+      "status": "done",
+      "priority": "P0"
+    },
+    {
+      "id": "v1.2.0-rebranding",
+      "title": "Phase 3: Standalone Rebranding to Pi Swarm",
+      "status": "done",
+      "priority": "P0"
+    },
+    {
+      "id": "extension-generator",
+      "title": "P2: Interactive Extension Generator",
+      "status": "todo",
+      "priority": "P2"
+    },
+    {
+      "id": "bolt-on-marketplace",
+      "title": "P2: Bolt-on Marketplace CLI",
+      "status": "todo",
+      "priority": "P2"
+    }
+  ],
+  "lastSync": "2026-03-23T00:00:00Z"
+}

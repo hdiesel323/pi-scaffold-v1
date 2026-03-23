@@ -1,0 +1,35 @@
+# Handover Note: Pi Swarm v1.2.0
+
+## Status Summary
+- **Project Name**: Pi Swarm
+- **Current Version**: v1.2.0 (Standalone Rebranding)
+- **Roster**: 56 agents across 7 divisions (Product, Design, Marketing, Sales/Ops, Data/Insights, Security/QA, Engineering).
+- **Core Stacks**: Power Suite (7 extensions) fully implemented and tested.
+
+## Key Changes
+- **Rebrand**: All internal references to `pi-vs-cc` have been removed. Project root is now `/Users/admin/pi-swarm/`.
+- **Orchestration**:
+  - **Ruflo**: Declarative YAML workflow engine for complex multi-agent choreographies is active.
+  - **Upstream Curator**: Active and monitoring repository alignment.
+  - **Git Worktree**: Support for parallel task execution integrated into standard CLI flows.
+- **Scrum State**: Initialized in `.pi/project-state.json`. All Phase 1, 2, and v1.2.0 tasks are marked as **`done`**.
+- **Archive**: Legacy comparison documents (`COMPARISON.md`, `PI_VS_OPEN_CODE.md`) have been moved to `docs/archive/`.
+
+## Division Breakdown
+- **Eng**: 22 agents (Architecture, Frontend, Backend, API, etc.)
+- **Security/QA**: 5 agents (SOC, Pen-Test, Compliance, etc.)
+- **Marketing**: 6 agents (SEO, Growth, Content, Social, etc.)
+- **Product**: 4 agents (PRD, Strategy, User Research)
+- **Data/Insights**: 4 agents (Analytics, ML, Insights)
+- **Design/UX**: 4 agents (UX/UI, Visual, Design System)
+- **Sales/Ops**: 6 agents (SDR, CRM, RevOps, Customer Success)
+
+## Next Steps
+- Implement P2 "Nice to Have" items:
+  - **Interactive Extension Generator**: Streamline creating new TypeScript extensions.
+  - **Bolt-on Marketplace CLI**: Allow for easy discovery and installation of external modules.
+- Monitor `curator.ts` for upstream alignment.
+- Use `just run-scrum` or `just run-planner` to engage the advanced orchestration stacks.
+
+---
+*Date: 2026-03-23*

@@ -5,6 +5,17 @@ All notable changes to Pi Scaffold will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-24
+
+### Added
+- **Project Rebranding**: Renamed to `pi-swarm` for better alignment with our vision of multi-agent coordination and decentralized swarms.
+- **Swarm Orchestration**: Added `pi-swarm` CLI wrapper (symlinked to `bin/team-pi`) for easier access to the agent swarm.
+
+### Changed
+- **Renamed Assets**: Cleaned up all internal references to `pi-vs-cc` in extensions, documentation, and scaffold templates.
+- **Directory Structure**: Moved the project to `/Users/admin/pi-swarm/` to match the new identity.
+- **Documentation**: Archived old comparison files (`COMPARISON.md`, `PI_VS_OPEN_CODE.md`) into `docs/archive/` to focus on the swarm future.
+
 ## [1.1.0] - 2026-03-24
 
 ### Added - The Swarm & Power Suite

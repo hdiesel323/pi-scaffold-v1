@@ -6,7 +6,7 @@
 | **Status**     | Draft                          |
 | **Created**    | 2026-03-23                     |
 | **Author**     | Engineering                    |
-| **Repo**       | `pi-vs-cc`                     |
+| **Repo**       | `pi-swarm`                     |
 | **Baseline**   | `VERSION` file reads `1.0.0`   |
 
 ---
@@ -251,7 +251,7 @@ A release is considered **production-ready** when ALL of the following are true:
 Reference map of key files discussed in this PRD:
 
 ```
-pi-vs-cc/
+pi-swarm/
 ├── init.sh                          # Root init (greenfield + brownfield) — CANONICAL
 ├── scaffold/
 │   ├── init.sh                      # Scaffold-only init (greenfield) — TO BE REMOVED/REDIRECTED

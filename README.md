@@ -1,4 +1,4 @@
-# Pi Scaffold — Production-Ready Pi Agent Extensions
+# Pi Swarm — Production-Ready Pi Agent Extensions
 
 > "There are many coding agents, but this one is mine."
 
@@ -8,20 +8,20 @@ A comprehensive Pi Coding Agent toolkit for the team. This repository provides s
 
 ---
 
-## 🚀 Quick Start (Zero to Pi)
+## 🚀 Quick Start (Zero to Pi Swarm)
 
-Follow these steps to get Pi running on your machine.
+Follow these steps to get Pi Swarm running on your machine.
 
 ### Step 1: One-Time Setup (The Toolkit)
 First, clone this toolkit to your home directory. You only need to do this **once**.
 ```bash
 # HTTPS
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
+git clone https://github.com/hdiesel323/pi-swarm.git ~/pi-swarm
 
 # OR SSH (recommended for remote/CI environments)
-git clone git@github.com:hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
+git clone git@github.com:hdiesel323/pi-swarm.git ~/pi-swarm
 ```
-Already cloned? Pull the latest: `cd ~/pi-scaffold && git pull`
+Already cloned? Pull the latest: `cd ~/pi-swarm && git pull`
 
 ---
 
@@ -30,19 +30,19 @@ Already cloned? Pull the latest: `cd ~/pi-scaffold && git pull`
 #### Path A: Start a NEW Project
 Use this if you are beginning a brand new repository.
 ```bash
-# This creates a new folder named 'my-new-agent'
-~/pi-scaffold/init.sh my-new-agent
-cd my-new-agent
+# This creates a new folder named 'my-new-swarm'
+~/pi-swarm/init.sh my-new-swarm
+cd my-new-swarm
 ```
 
 #### Path B: Add to an EXISTING Project
-Use this to add Pi configuration to a project you are already working on.
+Use this to add Pi Swarm configuration to a project you are already working on.
 ```bash
 # 1. Navigate to your existing project
 cd /path/to/your-project
 
-# 2. Inject Pi configuration (your existing files won't be overwritten)
-~/pi-scaffold/init.sh --brownfield .
+# 2. Inject Pi Swarm configuration (your existing files won't be overwritten)
+~/pi-swarm/init.sh --brownfield .
 ```
 > **What this does:** Copies Pi extensions, agent configs, themes, and tooling into your project. Existing files are never overwritten — if a file already exists, it's skipped. Your `justfile` will have Pi recipes appended (not replaced).
 

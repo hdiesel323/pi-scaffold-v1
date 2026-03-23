@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Pi Scaffold (pi-vs-cc)
+# Pi Swarm
 # License: MIT
-# Copyright (c) 2026 Pi Scaffold Maintainers
+# Copyright (c) 2026 Pi Swarm Maintainers
 #
 # Pi Team Distro — doctor.sh
 #
@@ -11,7 +11,7 @@ set -euo pipefail
 
 # ── Version ────────────────────────────────────────────────────────────────
 
-VERSION="1.0.0"
+VERSION="1.2.0"
 
 # ── Colors ─────────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ error()   { echo -e "${RED}error${NC}   $1"; }
 # ── Args ───────────────────────────────────────────────────────────────────
 
 if [[ "${1:-}" == "--version" ]]; then
-  echo "Pi Scaffold v$VERSION"
+  echo "Pi Swarm v$VERSION"
   exit 0
 fi
 
@@ -68,7 +68,7 @@ check_command() {
   fi
 }
 
-echo "🏥 Company Pi Team Distro Doctor"
+echo "🏥 Pi Swarm Doctor"
 echo "────────────────────────────────"
 
 # 1. Platform

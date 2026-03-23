@@ -1,10 +1,10 @@
 /**
- * Pi Scaffold (pi-vs-cc)
+ * Pi Swarm
  * License: MIT
  * Copyright (c) 2026 Pi Scaffold Maintainers
  */
 /**
- * Pi Scaffold (pi-vs-cc)
+ * Pi Swarm
  * License: MIT
  * Copyright (c) 2026 Pi Scaffold Maintainers
  */

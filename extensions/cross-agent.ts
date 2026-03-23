@@ -1,5 +1,5 @@
 /**
- * Pi Scaffold (pi-vs-cc)
+ * Pi Swarm
  * License: MIT
  * Copyright (c) 2026 Pi Scaffold Maintainers
  */
@@ -175,7 +175,7 @@ export default function (pi: ExtensionAPI) {
 		}
 	}
 
-	// Also scan .pi/agents/ (pi-vs-cc pattern)
+	// Also scan .pi/agents/ (pi-swarm pattern)
 	const localAgents = scanAgents(join(cwd, ".pi", "agents"));
 	if (localAgents.length) {
 		groups.push({ source: ".pi/agents", commands: [], skills: [], agents: localAgents });

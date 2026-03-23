@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Pi Scaffold (pi-vs-cc)
+# Pi Swarm
 # License: MIT
 # Copyright (c) 2026 Pi Scaffold Maintainers
 #
-# Company Pi Team Launcher — team-pi
+# Pi Swarm Launcher — team-pi
 #
 # Launches the team-standard Pi environment with preflight checks.
 #
