@@ -175,19 +175,21 @@ just ext-agent-team          # Multi-agent dispatcher
 
 ## Existing Project — Brownfield Setup
 
-If you have an existing repository and want to add the team's Pi configuration without starting over, follow these steps:
+If you have an existing repository and want to add the team's Pi configuration, follow these steps:
 
 ### 1. Clone the Scaffold
-First, clone this scaffold repository to your local machine:
+Clone this repository to a central location on your machine (e.g., your Documents or Projects folder):
 ```bash
-git clone <your-scaffold-repo-url> pi-scaffold
-cd pi-scaffold
+git clone https://github.com/hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
 ```
 
 ### 2. Inject Pi into your Project
-Run the `init.sh` script with the `--brownfield` flag, pointing it to your existing project's directory:
+Go to **your existing project** directory and run the script by pointing to the scaffold path:
 ```bash
-./init.sh --brownfield /path/to/your-existing-project
+cd ~/path/to/your-existing-project
+
+# Run the injector (replace ~/pi-scaffold with where you cloned it)
+~/pi-scaffold/init.sh --brownfield .
 ```
 
 **What this does:**
@@ -199,7 +201,6 @@ Run the `init.sh` script with the `--brownfield` flag, pointing it to your exist
 
 ### 3. Setup & Launch
 ```bash
-cd /path/to/your-existing-project
 cp .env.sample .env     # Add your keys
 just doctor             # Verify setup
 just team-pi            # Launch

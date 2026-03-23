@@ -215,21 +215,22 @@ This path creates a repo from the scaffold template. It does not install or bund
 If you already have a repository and want to add the team's Pi configuration, follow these steps:
 
 ### 1. Clone the Scaffold
-First, clone the team's scaffold repository to a temporary location:
+Clone the team's scaffold repository to a central location on your machine (e.g., `~/pi-scaffold`):
 ```bash
-git clone <your-scaffold-repo-url> pi-scaffold
-cd pi-scaffold
+git clone https://github.com/hdiesel323/pi-scaffold-v1.git ~/pi-scaffold
 ```
 
 ### 2. Inject Pi into your Project
-Run the `init.sh` script with the `--brownfield` flag, pointing it to your project's directory:
+Navigate to **your project directory** and run the injector script by pointing to its path:
 ```bash
-./init.sh --brownfield /path/to/your-existing-project
+cd ~/path/to/your-existing-project
+
+# Run the injector (replace ~/pi-scaffold with where you cloned it)
+~/pi-scaffold/init.sh --brownfield .
 ```
 
 ### 3. Setup & Launch
 ```bash
-cd /path/to/your-existing-project
 cp .env.sample .env     # Add your keys
 just doctor             # Verify setup
 just team-pi            # Launch
