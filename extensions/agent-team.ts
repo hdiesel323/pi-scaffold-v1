@@ -220,13 +220,15 @@ export default function (pi: ExtensionAPI) {
 			: state.status === "done" ? "✓" : "✗";
 
 		const name = displayName(state.def.name);
+		const division = (state.def as any).division || "Eng";
 		const nameStr = theme.fg("accent", theme.bold(truncate(name, w)));
 		const nameVisible = Math.min(name.length, w);
 
 		const statusStr = `${statusIcon} ${state.status}`;
+		const divLabel = theme.fg("dim", ` [${division}]`);
 		const timeStr = state.status !== "idle" ? ` ${Math.round(state.elapsed / 1000)}s` : "";
-		const statusLine = theme.fg(statusColor, statusStr + timeStr);
-		const statusVisible = statusStr.length + timeStr.length;
+		const statusLine = theme.fg(statusColor, statusStr + timeStr) + divLabel;
+		const statusVisible = statusStr.length + timeStr.length + division.length + 3;
 
 		// Context bar: 5 blocks + percent
 		const filled = Math.ceil(state.contextPct / 20);

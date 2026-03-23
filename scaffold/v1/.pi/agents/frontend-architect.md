@@ -1,0 +1,1 @@
+../../../../.pi/agents/frontend-architect.md

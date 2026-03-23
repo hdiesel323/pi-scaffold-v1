@@ -1,0 +1,1 @@
+../../../../.pi/agents/contracts-analyst.md

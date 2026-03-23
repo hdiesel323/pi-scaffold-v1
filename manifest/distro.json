@@ -1,16 +1,40 @@
 {
-  "distroVersion": "1.0.0",
+  "distroVersion": "1.1.0",
   "templateVersion": "v1",
   "piVersionRange": ">=0.0.0",
   "bunVersionRange": ">=1.0.0",
   "justVersionRange": ">=1.0.0",
-  "supportedOs": ["darwin", "linux"],
+  "supportedOs": [
+    "darwin",
+    "linux"
+  ],
   "defaultLaunchRecipe": "ext-sentry-agent-team",
   "namedLaunchModes": {
     "default": "ext-sentry-agent-team",
     "minimal": "ext-minimal",
     "health-check": "ext-health-check",
-    "agent-team": "ext-agent-team"
+    "agent-team": "ext-agent-team",
+    "scrum": [
+      "extensions/agent-team.ts",
+      "extensions/scrum-master.ts"
+    ],
+    "planner": [
+      "extensions/project-planner.ts",
+      "extensions/curator.ts"
+    ],
+    "workflow": [
+      "extensions/ruflo.ts",
+      "extensions/git-worktree.ts"
+    ],
+    "power-suite": [
+      "extensions/agent-team.ts",
+      "extensions/scrum-master.ts",
+      "extensions/project-planner.ts",
+      "extensions/superpowers.ts",
+      "extensions/ruflo.ts",
+      "extensions/git-worktree.ts",
+      "extensions/agent-catalog.ts"
+    ]
   },
   "supportedProviders": [
     "anthropic",

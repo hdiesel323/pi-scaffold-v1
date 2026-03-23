@@ -5,6 +5,29 @@ All notable changes to Pi Scaffold will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-24
+
+### Added - The Swarm & Power Suite
+- **7 New Advanced Extensions**:
+  - `project-planner.ts`: Interactive requirements interview and automated document generation (PRD/TDD/Roadmap).
+  - `scrum-master.ts`: Automated task tracking, backlog sync with ROADMAP.md, and sprint health monitoring.
+  - `git-worktree.ts`: Native support for parallel task execution using Git worktrees.
+  - `superpowers.ts`: High-leverage Git commands (spork, spdiff, strail) and GitHub/Research skill packs.
+  - `agent-catalog.ts`: Searchable agent roster with division filtering and automated smoke testing.
+  - `ruflo.ts`: Declarative YAML workflow engine for complex multi-agent choreographies.
+  - `curator.ts`: Automated upstream repository monitoring and feature alignment.
+- **Divisional Agent Roster**:
+  - Expanded to **51+ specialized agent personas**.
+  - Introduced **Divisions** (Eng, Prod, Design, Mktg, Ops, Data, Sec) for enterprise-scale organization.
+  - Upgraded frontmatter to v2.1 (tags, capability scores, division metadata).
+- **New Launch Modes**: Integrated specific orchestration stacks for Scrum, Planning, and Workflows.
+- **Specs & Blueprints**: Added formal technical specifications for all "Power Suite" systems in `specs/`.
+
+### Changed
+- **TUI Enhancements**: Agent dashboard now displays Division tags and visual status indicators.
+- **Infrastructure**: `init.sh` and `scaffold/v1` synced with the new Power Suite assets.
+- **Testing**: Extended validation to cover 25 total extensions and new agent metadata.
+
 ## [1.0.0] - 2026-03-23
 
 ### Added

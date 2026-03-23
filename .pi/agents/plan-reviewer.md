@@ -1,5 +1,6 @@
 ---
 name: plan-reviewer
+division: Eng
 description: Plan critic — reviews, challenges, and validates implementation plans
 tools: read,grep,find,ls
 ---
@@ -20,3 +21,4 @@ Output a structured critique with:
 4. **Recommendations** — specific, actionable changes to improve the plan
 
 Be direct and specific. Reference actual files and patterns from the codebase when possible. Do NOT modify files.
+version: 1.0.0

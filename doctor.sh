@@ -9,6 +9,10 @@
 #
 set -euo pipefail
 
+# ── Version ────────────────────────────────────────────────────────────────
+
+VERSION="1.0.0"
+
 # ── Colors ─────────────────────────────────────────────────────────────────
 
 RED='\033[0;31m'
@@ -22,15 +26,42 @@ success() { echo -e "${GREEN}success${NC} $1"; }
 warn()    { echo -e "${YELLOW}warn${NC}    $1"; }
 error()   { echo -e "${RED}error${NC}   $1"; }
 
-# ── Checks ─────────────────────────────────────────────────────────────────
+# ── Args ───────────────────────────────────────────────────────────────────
+
+if [[ "${1:-}" == "--version" ]]; then
+  echo "Pi Scaffold v$VERSION"
+  exit 0
+fi
+
+# ── Helpers ────────────────────────────────────────────────────────────────
 
 EXIT_CODE=0
 
 check_command() {
   local cmd="$1"
-  local msg="$2"
+  local min_version="$2"
+  local msg="$3"
+  local version_cmd="$4"
+
   if command -v "$cmd" &>/dev/null; then
-    success "$cmd is installed ($(command -v "$cmd"))"
+    if [[ -n "$version_cmd" ]]; then
+        local current_version
+        current_version=$($version_cmd 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "0.0.0")
+        
+        if [[ -n "$min_version" && "$current_version" != "0.0.0" ]]; then
+            # Simple version comparison
+            if [[ "$(printf '%s\n%s' "$min_version" "$current_version" | sort -V | head -n1)" == "$min_version" ]]; then
+                success "$cmd is installed ($current_version)"
+            else
+                warn "$cmd version is $current_version, but >= $min_version is recommended."
+                info "  Upgrade with: $msg"
+            fi
+        else
+            success "$cmd is installed ($(command -v "$cmd"))"
+        fi
+    else
+        success "$cmd is installed ($(command -v "$cmd"))"
+    fi
   else
     error "$cmd is missing — $msg"
     EXIT_CODE=1
@@ -49,9 +80,11 @@ else
 fi
 
 # 2. Tools
-check_command "pi" "Install Pi from official docs"
-check_command "bun" "Install from https://bun.sh"
-check_command "just" "Install with 'brew install just' or your package manager"
+check_command "pi" "0.1.0" "go install github.com/mariozechner/pi-coding-agent@latest" "pi --version"
+check_command "bun" "1.0.0" "curl -fsSL https://bun.sh/install | bash" "bun --version"
+check_command "just" "1.0.0" "brew install just" "just --version"
+check_command "gh" "" "brew install gh" "gh --version"
+check_command "sqlite3" "" "brew install sqlite" "sqlite3 --version"
 
 # 3. Environment / Auth
 AUTH_FOUND=false
@@ -66,7 +99,7 @@ fi
 if [[ -f ".env" ]]; then
   # Check for common provider keys (without printing them!)
   FOUND_KEYS=0
-  for key in ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_GENERATIVE_AI_API_KEY; do
+  for key in ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_GENERATIVE_AI_API_KEY GEMINI_API_KEY; do
     if grep -q "^$key=" .env; then
       ((FOUND_KEYS++))
     fi
@@ -86,7 +119,7 @@ else
 fi
 
 # 4. Project Assets
-for dir in .pi .claude extensions; do
+for dir in .pi extensions; do
   if [[ -d "$dir" ]]; then
     success "$dir/ directory found"
   else

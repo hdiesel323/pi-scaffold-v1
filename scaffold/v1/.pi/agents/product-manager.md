@@ -1,0 +1,1 @@
+../../../../.pi/agents/product-manager.md
