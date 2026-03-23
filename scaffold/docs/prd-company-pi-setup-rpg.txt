@@ -1,0 +1,566 @@
+# Company Pi Setup PRD
+
+## Problem Statement
+Our company needs a repeatable Pi setup that team members can download, clone, and use without manually assembling extensions, agent definitions, themes, prompts, CI files, and onboarding docs. Today the underlying `scaffold/` repository already contains most of the right assets, but the team-facing product is still easy to misuse because there are multiple audiences and layers:
+
+- maintainers work inside the scaffold source repo
+- teammates should consume an exported starter repo generated from `v1/`
+- the generated starter still depends on local `pi`, `bun`, `just`, and provider auth being present
+- docs and tests need to prove the exported starter is internally consistent
+
+Existing ad hoc approaches do not solve this well:
+
+- manually copying Pi extensions and `.pi/` assets into a new repo is error-prone
+- onboarding breaks when starter docs drift from the actual generated repo contents
+- optional agent packs can look installed on disk while remaining unusable at runtime
+- release quality depends too much on maintainer memory instead of explicit validation
+
+Success means our company has a standard Pi starter product built from `scaffold/`:
+
+- maintainers can generate and publish a clean starter repo from a known template version
+- teammates can clone the exported starter repo, configure `.env`, and launch the standard Pi stacks quickly
+- generated starter repos always contain the expected hidden assets, recipes, docs, and team defaults
+- release validation catches template, onboarding, and optional-bolt-on regressions before team rollout
+
+## Target Users
+- **Company engineers**: need a ready-to-clone Pi project with the company-standard extensions, agents, themes, docs, and recipes already packaged.
+- **Engineering leads / platform owners**: need a stable internal Pi setup that can be rolled out repeatedly with low support overhead.
+- **Scaffold maintainers**: evolve the starter safely, export team-ready repos, and keep versioned releases reproducible.
+- **Brownfield adopters**: import selected company Pi assets into an existing repo without taking the full starter.
+- **QA / tooling maintainers**: need proof that generation, export, onboarding, and optional add-ons work as documented.
+
+## Success Metrics
+- 100% of exported starter repos from the active version contain the expected hidden assets: `.pi/`, `.claude/`, `.github/`, `extensions/`, `justfile`, `.env.sample`, and docs.
+- 90%+ of new team members can reach a successful first Pi launch from the exported starter repo in under 15 minutes, excluding provider signup and API key issuance.
+- 100% of documented core launch recipes in the exported starter repo are covered by automated validation.
+- 0 release rollouts require manual file patching after export because of missing assets, broken recipes, or invalid placeholders.
+- Optional bolt-ons marketed as compatible with the company starter pass runtime-compatible validation, not file-exists-only checks.
+
+## Capability Tree
+
+### Capability: Company Starter Template Packaging
+Package the complete company-standard Pi starter inside a versioned scaffold template.
+
+#### Feature: Versioned starter workspace
+- **Description**: Store the canonical company Pi starter under a versioned directory such as `v1/`.
+- **Inputs**: Curated template files, company defaults, version metadata.
+- **Outputs**: A copyable starter template tree.
+- **Behavior**: Keep the generated-project payload self-contained under `v1/`, including docs, hidden assets, extensions, recipes, and project metadata.
+
+#### Feature: Company defaults packaging
+- **Description**: Bundle the company-standard extension stack, Pi settings, agents, themes, prompts, and CI baseline.
+- **Inputs**: `v1/extensions/`, `v1/.pi/`, `v1/.claude/`, `v1/.github/`, `v1/justfile`, `v1/.env.sample`.
+- **Outputs**: A generated repo with the expected team runtime surface.
+- **Behavior**: Package the standard launch stacks and support files so every exported starter repo begins from the same baseline.
+
+#### Feature: Team documentation packaging
+- **Description**: Include onboarding, release, and project-level usage docs that match the exported starter behavior.
+- **Inputs**: `README.md`, `docs/`, `v1/README.md`, `v1/CLAUDE.md`.
+- **Outputs**: Clear maintainer and teammate guidance.
+- **Behavior**: Keep scaffold-owner docs separate from exported-starter docs while ensuring both describe the same product boundary.
+
+#### Feature: Optional bolt-on packaging
+- **Description**: Ship optional agent packs or add-ons that can extend the starter without changing the base path.
+- **Inputs**: `v1/bolt-ons/`, install scripts, optional agent definitions.
+- **Outputs**: Installable add-ons for generated starter repos.
+- **Behavior**: Keep bolt-ons versioned alongside the starter and validate them against the actual starter runtime conventions.
+
+### Capability: Starter Repo Generation and Export
+Turn the scaffold into a team-ready starter repository that can be downloaded and cloned.
+
+#### Feature: Project generation
+- **Description**: Create a new repo from the active scaffold version.
+- **Inputs**: Project name, optional target parent directory, active version directory.
+- **Outputs**: New project directory with placeholders replaced and git initialized.
+- **Behavior**: Validate inputs, prevent overwrite, copy the versioned template, replace placeholders, initialize git, optionally run `bun install`, and print next steps.
+
+#### Feature: Starter repo export
+- **Description**: Export the active version into a standalone starter repo intended for team distribution.
+- **Inputs**: Export script, project name, target directory.
+- **Outputs**: Standalone starter repo ready for remote push.
+- **Behavior**: Reuse generation logic, emit exact post-export steps, and keep the exported repo independent from scaffold-internal paths.
+
+#### Feature: Placeholder and path normalization
+- **Description**: Ensure exported starter files contain company-specific values and no author-local references.
+- **Inputs**: Placeholder tokens, copied template files, generated README/docs.
+- **Outputs**: Starter repo docs and metadata with valid values.
+- **Behavior**: Replace template tokens, normalize paths, and reject exported docs that still reference scaffold-internal or machine-specific locations.
+
+### Capability: Team Onboarding and Runtime Guidance
+Make the exported starter repo understandable and usable for teammates who did not work on the scaffold.
+
+#### Feature: Exported starter onboarding
+- **Description**: Guide teammates from clone to first successful Pi launch.
+- **Inputs**: Exported repo, `docs/ONBOARDING.md`, `v1/README.md`, `.env.sample`.
+- **Outputs**: A deterministic onboarding path.
+- **Behavior**: Tell users what to clone, which local prerequisites they need, how to configure `.env`, and which `just` recipes to run first.
+
+#### Feature: Local prerequisite guidance
+- **Description**: Explain the required local tools and provider auth model without bundling Pi itself.
+- **Inputs**: Upstream Pi install expectations, Bun/just requirements, provider env keys.
+- **Outputs**: Accurate setup guidance and troubleshooting steps.
+- **Behavior**: Document that the starter depends on local `pi`, `bun`, `just`, and provider auth, and explain how users confirm model visibility.
+
+#### Feature: Brownfield adoption guidance
+- **Description**: Support selective import of company Pi assets into existing repos.
+- **Inputs**: Template assets and import instructions.
+- **Outputs**: Extension-only or asset-only adoption path.
+- **Behavior**: Provide copy/import steps that are valid outside the scaffold author’s machine and distinguish brownfield usage from the full starter-repo path.
+
+### Capability: Release Management and Validation
+Prove that the company starter can be safely rolled out to the team.
+
+#### Feature: Automated E2E validation
+- **Description**: Validate scaffold generation, export behavior, starter integrity, and documented recipes.
+- **Inputs**: `init.sh`, `scripts/export-v1.sh`, template files, fake binaries, tests.
+- **Outputs**: Pass/fail release evidence.
+- **Behavior**: Generate temp repos, assert hidden assets exist, assert placeholders are replaced, assert recipe wiring matches docs, and verify starter-export behavior.
+
+#### Feature: Team rollout checklist
+- **Description**: Provide a release gate for maintainers before distributing a starter repo.
+- **Inputs**: `docs/RELEASE_CHECKLIST.md`, test results, smoke-check results.
+- **Outputs**: A repeatable release decision process.
+- **Behavior**: Require docs alignment, test passage, clean export verification, and confirmation that the published starter repo matches the intended company product boundary.
+
+#### Feature: Optional bolt-on compatibility validation
+- **Description**: Verify optional agent packs against real runtime discovery behavior.
+- **Inputs**: Bolt-on installer output, agent loader expectations, teams config, tests.
+- **Outputs**: Proof that optional additions are actually usable after installation.
+- **Behavior**: Validate not just file presence but also runtime discoverability, expected agent loading, and team compatibility.
+
+## Repository Structure
+
+```
+scaffold-root/
+├── README.md                          # Maintainer-facing scaffold product definition
+├── init.sh                            # Starter generation entry point
+├── package.json                       # Test scripts for scaffold package
+├── scripts/
+│   └── export-v1.sh                   # Export active version as standalone starter repo
+├── tests/
+│   └── e2e.test.mjs                   # End-to-end scaffold and export validation
+├── docs/
+│   ├── prd-scaffold-rpg.txt           # Existing scaffold PRD
+│   ├── prd-company-pi-setup-rpg.txt   # Company starter PRD
+│   ├── ONBOARDING.md                  # Teammate onboarding for exported starter repo
+│   ├── PUBLISH_V1.md                  # Maintainer publish/export flow
+│   └── RELEASE_CHECKLIST.md           # Release gate checklist
+└── v1/
+    ├── VERSION                        # Active starter version
+    ├── README.md                      # Exported starter repo usage docs
+    ├── package.json                   # Generated starter package metadata
+    ├── justfile                       # Standard launch recipes
+    ├── .env.sample                    # Provider/auth guidance
+    ├── extensions/                    # Company Pi extension stack
+    ├── .pi/                           # Agents, themes, settings, teams
+    ├── .claude/                       # Commands/prompts
+    ├── .github/                       # Starter CI baseline
+    └── bolt-ons/                      # Optional add-ons for generated starter repos
+```
+
+## Module Definitions
+
+### Module: Template Payload
+- **Maps to capability**: Company Starter Template Packaging
+- **Responsibility**: Store the exact files a teammate should receive in the exported starter repo.
+- **File structure**:
+  ```
+  v1/
+  ├── README.md
+  ├── package.json
+  ├── justfile
+  ├── .env.sample
+  ├── extensions/
+  ├── .pi/
+  ├── .claude/
+  ├── .github/
+  └── bolt-ons/
+  ```
+- **Exports**:
+  - Complete starter template tree
+  - Company-standard runtime assets
+  - Version metadata via `v1/VERSION`
+
+### Module: Generation Entry
+- **Maps to capability**: Starter Repo Generation and Export
+- **Responsibility**: Generate a new repo from the active starter template.
+- **File structure**:
+  ```
+  init.sh
+  ```
+- **Exports**:
+  - `./init.sh <project-name> [target-dir]`
+
+### Module: Export Pipeline
+- **Maps to capability**: Starter Repo Generation and Export
+- **Responsibility**: Turn the active template into a standalone starter repo for publication.
+- **File structure**:
+  ```
+  scripts/
+  └── export-v1.sh
+  ```
+- **Exports**:
+  - `./scripts/export-v1.sh <project-name> [target-dir]`
+
+### Module: Documentation Surface
+- **Maps to capability**: Team Onboarding and Runtime Guidance
+- **Responsibility**: Separate maintainer docs from teammate-facing exported starter docs.
+- **File structure**:
+  ```
+  README.md
+  docs/
+  ├── ONBOARDING.md
+  ├── PUBLISH_V1.md
+  ├── RELEASE_CHECKLIST.md
+  v1/
+  ├── README.md
+  └── CLAUDE.md
+  ```
+- **Exports**:
+  - Maintainer usage and release guidance
+  - Exported starter onboarding and runtime guidance
+
+### Module: Validation Harness
+- **Maps to capability**: Release Management and Validation
+- **Responsibility**: Prove generation, export, docs, recipe wiring, and bolt-on compatibility.
+- **File structure**:
+  ```
+  package.json
+  tests/
+  └── e2e.test.mjs
+  ```
+- **Exports**:
+  - `npm test`
+  - End-to-end validation evidence for release gating
+
+### Module: Optional Bolt-On Surface
+- **Maps to capability**: Company Starter Template Packaging
+- **Responsibility**: Provide installable optional additions that respect the starter repo layout and runtime expectations.
+- **File structure**:
+  ```
+  v1/bolt-ons/
+  └── agency-full/
+      ├── install.sh
+      └── agents/
+  ```
+- **Exports**:
+  - Bolt-on installer scripts
+  - Optional agent definitions and configuration
+
+## Dependency Chain
+
+### Foundation Layer (Phase 0)
+No dependencies - these are built first.
+
+- **Template Payload**: Provides the canonical company starter contents under `v1/`
+- **Documentation Surface**: Defines the product boundary for maintainers and teammates
+
+### Generation Layer (Phase 1)
+- **Generation Entry**: Depends on [[Template Payload], [Documentation Surface]]
+- **Export Pipeline**: Depends on [[Generation Entry], [Template Payload], [Documentation Surface]]
+
+### Validation Layer (Phase 2)
+- **Validation Harness**: Depends on [[Generation Entry], [Export Pipeline], [Template Payload], [Documentation Surface]]
+- **Optional Bolt-On Surface**: Depends on [[Template Payload], [Documentation Surface]]
+
+### Release Layer (Phase 3)
+- **Starter Rollout Process**: Depends on [[Validation Harness], [Export Pipeline], [Documentation Surface]]
+- **Optional Bolt-On Compatibility Validation**: Depends on [[Optional Bolt-On Surface], [Validation Harness]]
+
+## Development Phases
+
+### Phase 0: Product Boundary and Template Integrity
+**Goal**: Establish the company Pi setup as a clearly defined starter product built from `scaffold/`.
+
+**Entry Criteria**: Current scaffold repo exists with `v1/`, `init.sh`, docs, and E2E tests.
+
+**Tasks**:
+- [ ] Define and preserve the company starter product boundary (depends on: none)
+  - Acceptance criteria: Maintainer docs describe `scaffold/` as the source product and exported starter repos as the teammate-facing download.
+  - Test strategy: Manual doc review plus automated assertions that release docs reference the correct entry points.
+
+- [ ] Keep `v1/` as a complete, versioned starter payload (depends on: none)
+  - Acceptance criteria: `v1/` contains the required runtime files, hidden assets, and docs for a generated starter repo.
+  - Test strategy: E2E assertions on generated project contents.
+
+- [ ] Eliminate template drift in exported docs and paths (depends on: none)
+  - Acceptance criteria: Exported starter docs contain no unreplaced placeholders, no scaffold-internal commands that do not exist in the starter repo, and no machine-specific author paths.
+  - Test strategy: String-match E2E assertions against exported `README.md` and related docs.
+
+**Exit Criteria**: The active template is self-contained and its docs match the intended company starter product boundary.
+
+**Delivers**: Maintainers have a stable base template that can be exported without manual cleanup.
+
+---
+
+### Phase 1: Generation and Export Reliability
+**Goal**: Make project generation and starter export deterministic and publishable.
+
+**Entry Criteria**: Phase 0 complete.
+
+**Tasks**:
+- [ ] Harden `init.sh` for company starter generation (depends on: [[Keep `v1/` as a complete, versioned starter payload]])
+  - Acceptance criteria: Generation validates inputs, copies the active version, replaces placeholders safely, initializes git, and preserves hidden assets.
+  - Test strategy: E2E coverage for missing args, existing target rejection, successful generation, and placeholder replacement.
+
+- [ ] Standardize standalone starter export flow (depends on: [[Harden `init.sh` for company starter generation], [Define and preserve the company starter product boundary]])
+  - Acceptance criteria: Export script produces a standalone repo and prints the exact remote/publish steps maintainers need.
+  - Test strategy: E2E export test that validates the generated repo exists and includes expected files.
+
+- [ ] Validate starter repo independence from scaffold source layout (depends on: [[Standardize standalone starter export flow], [Eliminate template drift in exported docs and paths]])
+  - Acceptance criteria: The exported starter can be understood and used without referencing `scaffold/` source paths.
+  - Test strategy: Assertions that exported docs and scripts use starter-repo-local paths only.
+
+**Exit Criteria**: Maintainers can generate and export a starter repo that is publication-ready without hand editing.
+
+**Delivers**: A reliable starter export path for company rollout.
+
+---
+
+### Phase 2: Team Onboarding and Runtime Usability
+**Goal**: Ensure teammates can go from clone to first Pi launch using the exported starter repo.
+
+**Entry Criteria**: Phase 1 complete.
+
+**Tasks**:
+- [ ] Align teammate onboarding docs with exported starter behavior (depends on: [[Validate starter repo independence from scaffold source layout]])
+  - Acceptance criteria: `docs/ONBOARDING.md`, `v1/README.md`, `.env.sample`, and recipe guidance tell a consistent story for clone, configure, and first run.
+  - Test strategy: Doc consistency assertions plus smoke validation of documented `just` recipes against a stubbed `pi`.
+
+- [ ] Preserve company-standard launch stacks and recipe wiring (depends on: [[Keep `v1/` as a complete, versioned starter payload]])
+  - Acceptance criteria: Documented recipes launch the intended extension stacks and remain stable across releases unless explicitly changed.
+  - Test strategy: E2E recipe-wiring tests using a fake `pi` binary.
+
+- [ ] Strengthen brownfield adoption guidance (depends on: [[Align teammate onboarding docs with exported starter behavior]])
+  - Acceptance criteria: Brownfield instructions are valid on arbitrary machines and distinguish extension-only import from the full starter path.
+  - Test strategy: Static doc validation and spot-check import flow in a temp repo.
+
+**Exit Criteria**: The exported starter repo is self-explanatory enough for normal team onboarding.
+
+**Delivers**: Teammates can clone the published starter repo, configure it, and launch Pi with the company defaults.
+
+---
+
+### Phase 3: Validation, Optional Add-Ons, and Release Gate
+**Goal**: Turn the company starter into a releaseable internal product with meaningful quality gates.
+
+**Entry Criteria**: Phase 2 complete.
+
+**Tasks**:
+- [ ] Expand E2E coverage to release-critical scenarios (depends on: [[Standardize standalone starter export flow], [Align teammate onboarding docs with exported starter behavior], [Preserve company-standard launch stacks and recipe wiring]])
+  - Acceptance criteria: Tests cover generation, export, hidden assets, recipe wiring, doc/path correctness, and model-guidance expectations.
+  - Test strategy: Extended `node --test` coverage with temp directories and stubbed binaries.
+
+- [ ] Validate optional bolt-ons against runtime discoverability (depends on: [[Expand E2E coverage to release-critical scenarios]])
+  - Acceptance criteria: Bolt-ons that claim compatibility are tested against the actual agent-loading behavior of the starter repo, not just on-disk file presence.
+  - Test strategy: Install bolt-on into a temp repo and verify usable agent discovery and team mapping.
+
+- [ ] Enforce a release checklist before team distribution (depends on: [[Expand E2E coverage to release-critical scenarios], [Validate optional bolt-ons against runtime discoverability]])
+  - Acceptance criteria: Maintainers must pass checklist, local tests, export smoke check, and starter-repo verification before publishing a team download.
+  - Test strategy: Manual checklist completion plus required local test run.
+
+**Exit Criteria**: The company starter can be released with objective evidence instead of ad hoc confidence.
+
+**Delivers**: A repeatable publish-and-rollout workflow for team Pi starter repos.
+
+## Test Pyramid
+
+```
+        /\
+       /E2E\        ← 30% (generation, export, starter-repo smoke checks)
+      /------\
+     /Integration\  ← 40% (script/doc/recipe interactions, bolt-on compatibility)
+    /------------\
+   /  Unit Tests  \ ← 30% (helper logic, parsing, replacement utilities where extracted)
+  /----------------\
+```
+
+## Coverage Requirements
+- Line coverage: 80% minimum for Node-based validation logic and extracted helpers
+- Branch coverage: 75% minimum for helper and validation code paths
+- Function coverage: 85% minimum for reusable helper functions
+- Statement coverage: 80% minimum for Node-based testable code
+
+## Critical Test Scenarios
+
+### Starter Generation
+**Happy path**:
+- Generate a new repo from `v1/` with a valid project name and target directory.
+- Expected: Git repo initialized, placeholders replaced, hidden assets present, and next-step output printed.
+
+**Edge cases**:
+- Project name includes spaces or punctuation.
+- Expected: Slug is normalized safely and display name remains human-readable.
+
+**Error cases**:
+- Target directory already exists.
+- Expected: Generation stops without mutating the existing directory.
+
+**Integration points**:
+- `init.sh` with template files and optional Bun install.
+- Expected: Generated repo is complete even when Bun is unavailable.
+
+### Starter Export
+**Happy path**:
+- Export the active version into a standalone starter repo.
+- Expected: Exported repo exists, is git-initialized, and includes publish instructions.
+
+**Edge cases**:
+- Export run with custom target parent directory.
+- Expected: Output path is honored and messages remain correct.
+
+**Error cases**:
+- Missing required project name.
+- Expected: Usage help is printed and no repo is created.
+
+**Integration points**:
+- `scripts/export-v1.sh` with `init.sh`.
+- Expected: Export reuses generation behavior rather than diverging from it.
+
+### Team Onboarding and Recipes
+**Happy path**:
+- Follow documented setup from exported starter repo: copy `.env`, run a core `just` recipe.
+- Expected: Recipe forwards the documented extension stack to `pi`.
+
+**Edge cases**:
+- User has only one provider key configured.
+- Expected: Docs still point the user to `pi --list-models` and first-run guidance remains valid.
+
+**Error cases**:
+- Exported docs reference nonexistent scaffold-only paths or author-local machine paths.
+- Expected: Validation fails release gating.
+
+**Integration points**:
+- `v1/README.md`, `docs/ONBOARDING.md`, `v1/.env.sample`, `v1/justfile`.
+- Expected: The same product story appears across all onboarding surfaces.
+
+### Optional Bolt-Ons
+**Happy path**:
+- Install a supported bolt-on into a generated starter repo.
+- Expected: Installer writes files, teams config is valid, and runtime can discover the installed agents.
+
+**Edge cases**:
+- Installer runs when prerequisites like `gh` or `curl` are stubbed or partially available.
+- Expected: Failure mode is explicit and safe.
+
+**Error cases**:
+- Bolt-on creates files that the runtime loader cannot discover.
+- Expected: Compatibility validation fails instead of passing on file existence alone.
+
+**Integration points**:
+- Bolt-on installer with `agent-team` runtime expectations.
+- Expected: Installed assets are both present and usable.
+
+## Test Generation Guidelines
+- Prefer temp-directory E2E tests because the product is the generated starter repo, not just individual implementation details.
+- Stub external commands such as `pi`, `bun`, `gh`, and `curl` unless a test explicitly opts into local-tool smoke checks.
+- Add assertions for docs and exported-file content whenever behavior depends on documentation being correct.
+- If helper logic grows beyond the current shell scripts, extract it into testable modules before adding complicated mocks.
+- Treat optional bolt-on compatibility as a runtime contract, not a filesystem-only contract.
+
+## System Components
+- **Scaffold source repo**: Maintainer-owned source of truth for the company Pi starter.
+- **Versioned starter template (`v1/`)**: Self-contained generated-project payload.
+- **Generation entry point (`init.sh`)**: Creates a repo from the active template.
+- **Export pipeline (`scripts/export-v1.sh`)**: Produces the standalone starter repo to distribute to teammates.
+- **Documentation surface**: Maintainer docs in `docs/` and teammate-facing docs in the exported starter.
+- **Validation harness**: Node-based E2E tests that prove the starter product works as documented.
+- **Optional bolt-on surface**: Installers and agent packs that extend generated starter repos.
+
+## Data Models
+- **Starter template version**:
+  - `version`: active starter version from `v1/VERSION`
+  - `templatePath`: source template directory
+  - `runtimeAssets`: packaged extensions, agents, themes, prompts, CI, and docs
+
+- **Generated starter repo**:
+  - `projectName`: human-readable project name
+  - `projectSlug`: normalized package/repo slug
+  - `targetDir`: generated repo path
+  - `hiddenAssetsPresent`: boolean/state for `.pi`, `.claude`, `.github`
+
+- **Team configuration**:
+  - `teamName`: logical agent team name
+  - `agentNames`: list of agents assigned to the team
+  - `agentFilePaths`: resolved markdown file paths used by the runtime
+
+- **Release validation record**:
+  - `testsPassed`: boolean
+  - `exportSmokeChecked`: boolean
+  - `docsAligned`: boolean
+  - `boltOnsValidated`: boolean
+
+## Technology Stack
+- Bash for generation and export scripts
+- Node.js built-in test runner for E2E validation
+- Bun as the generated-project package manager when available
+- Pi CLI as the upstream runtime expected on teammate machines
+- Just as the recipe runner for team-standard extension stacks
+- Markdown docs as the primary maintainer and teammate guidance surface
+
+**Decision: Keep upstream `pi` external instead of bundling it**
+- **Rationale**: This matches the current scaffold model, minimizes packaging complexity, and keeps the company starter thin and maintainable.
+- **Trade-offs**: Teammates still need local Pi installation and provider auth.
+- **Alternatives considered**: Bundled internal distro with pinned runtime and wrapper launcher.
+
+**Decision: Export a standalone starter repo for teammates instead of telling them to clone the scaffold source repo**
+- **Rationale**: It cleanly separates maintainer-only internals from the team-facing product and reduces misuse.
+- **Trade-offs**: Maintainers must run an explicit export/publish step.
+- **Alternatives considered**: Direct scaffold clone workflow for all users.
+
+**Decision: Prefer E2E product validation over implementation-coupled unit-only validation**
+- **Rationale**: The primary failure mode is mismatched generated output, docs, and recipes, which E2E tests catch best.
+- **Trade-offs**: Tests are slower and rely on temp repos and command stubs.
+- **Alternatives considered**: Narrow script-level tests with limited generated-output coverage.
+
+## Technical Risks
+**Risk**: Exported starter docs drift from actual starter behavior.
+- **Impact**: High
+- **Likelihood**: High
+- **Mitigation**: Add content assertions for exported docs and smoke-check the documented starter flow before release.
+- **Fallback**: Block release and regenerate after doc fixes.
+
+**Risk**: Optional bolt-ons appear installed but are unusable at runtime.
+- **Impact**: High
+- **Likelihood**: Medium
+- **Mitigation**: Validate runtime discoverability, agent loading, and team compatibility in tests.
+- **Fallback**: Mark the bolt-on unsupported for the current starter version and remove it from rollout docs.
+
+**Risk**: Scaffold and exported-starter boundaries become blurred again over time.
+- **Impact**: Medium
+- **Likelihood**: Medium
+- **Mitigation**: Keep separate maintainer and teammate docs, and enforce the boundary in the release checklist.
+- **Fallback**: Freeze release until docs and product scope are re-aligned.
+
+## Dependency Risks
+- Upstream Pi CLI install, auth behavior, or provider model discovery may change and invalidate onboarding docs.
+- Bun or just availability on teammate machines remains an external dependency outside the scaffold repo itself.
+- Optional agent sources pulled by bolt-ons may change upstream and require compatibility adjustments.
+
+## Scope Risks
+- Trying to turn the starter into a fully bundled Pi distro would expand the project beyond the current company need.
+- Over-customizing the starter for one team could reduce reusability for adjacent internal teams.
+- Adding too many optional stacks or bolt-ons can dilute the “one good default starter” value.
+
+## References
+- `.taskmaster/templates/example_prd_rpg.txt`
+- `docs/prd-scaffold-rpg.txt`
+- `docs/PUBLISH_V1.md`
+- `docs/ONBOARDING.md`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/prd-team-distro.md`
+- `v1/README.md`
+- `v1/justfile`
+- `tests/e2e.test.mjs`
+
+## Glossary
+- **Scaffold source repo**: The maintainer-owned repository under `scaffold/` that defines the starter product.
+- **Starter repo**: The exported standalone repository teammates actually clone and use.
+- **Template version**: The versioned starter payload directory such as `v1/`.
+- **Brownfield adoption**: Importing selected starter assets into an existing repo instead of using the full starter.
+- **Bolt-on**: Optional add-on installed after generation to extend the starter.
+
+## Open Questions
+- Should the next company release keep the current “bring your own Pi install” model, or do we want a later phase for a pinned wrapper-based distro?
+- Do we want to formalize a lightweight manifest file for starter metadata in the exported repo, or keep the current file-layout-only contract?
+- Which optional bolt-ons are truly supported for team rollout versus experimental only?

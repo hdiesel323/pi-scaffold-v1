@@ -37,7 +37,6 @@ function validateDsn(dsn: string | undefined): { dsn: string | undefined; valid:
 		"http://...",
 		"YOUR_",
 		"your-",
-		".sentry.io/",
 	];
 
 	for (const pattern of placeholderPatterns) {

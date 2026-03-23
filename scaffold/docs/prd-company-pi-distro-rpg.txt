@@ -1,0 +1,567 @@
+# Company Pi Team Distro PRD
+
+## Problem Statement
+Our team has a strong Pi starter scaffold, but it is not yet a deployable internal product. Today, a new teammate still has to assemble too much local context by hand:
+
+- install `pi`, `bun`, and `just` independently
+- discover whether their local Pi version matches team expectations
+- confirm provider authentication is visible to Pi
+- know which `just` recipe or extension stack is the team default
+- recover from setup failures without a first-class support flow
+
+The current scaffold is reproducible as source code, but not yet reproducible as a working product experience. That creates avoidable onboarding friction, inconsistent local setups, rollout support overhead, and release ambiguity.
+
+The product we need is a full internal Pi distro built on top of the existing scaffold:
+
+- maintainers can cut a tagged release with a versioned runtime contract
+- teammates can run one install flow on macOS or Linux
+- users launch the company-standard Pi setup through a stable wrapper command
+- a doctor command explains setup problems before users hit runtime failure
+- generated projects still preserve the existing scaffold value and team defaults
+
+## Target Users
+- **New team members**: need a deterministic first-run path without maintainer hand-holding.
+- **Daily Pi users**: need a stable command surface and predictable default stack.
+- **Platform / maintainer owners**: need a releasable internal product with objective validation.
+- **Support owners**: need a fast diagnostic path for toolchain, auth, or project-layout problems.
+- **Brownfield adopters**: need a secondary path to import team defaults into an existing repo.
+
+## Success Metrics
+- 90%+ of new users complete install and first launch without maintainer intervention.
+- Median time from download to successful launch is under 15 minutes on supported machines, excluding provider signup and API key issuance.
+- 100% of tagged releases ship with a manifest, release artifact, checksum, and passing clean-install smoke test.
+- Doctor identifies the top setup failure modes without requiring users to inspect repo internals.
+- Generated projects retain a visible distro/runtime contract and launch correctly through the wrapper command.
+
+## Capability Tree
+
+### Capability: Distro Manifest and Runtime Contract
+Define the versioned compatibility rules that make the distro reproducible.
+
+#### Feature: Repo-level distro manifest
+- **Description**: Store the distro version contract in a canonical manifest file.
+- **Inputs**: Distro version, template version, supported Pi version/range, supported OS targets, required tools, default launch recipe, supported providers.
+- **Outputs**: Machine-readable runtime contract.
+- **Behavior**: Provide the single source of truth consumed by install, doctor, wrapper, packaging, and tests.
+
+#### Feature: Generated-project distro metadata
+- **Description**: Copy the distro contract into generated projects.
+- **Inputs**: Repo-level distro manifest and active template version.
+- **Outputs**: Generated project metadata under `.pi/`.
+- **Behavior**: Ensure created projects preserve the compatibility contract of the distro release that generated them.
+
+### Capability: Install and Bootstrap
+Turn the distro into a downloadable product instead of a source-only scaffold.
+
+#### Feature: Supported-platform install flow
+- **Description**: Provide one documented install entry point for macOS and Linux.
+- **Inputs**: Target directory, current platform, distro manifest, installed local tools.
+- **Outputs**: Ready-to-run distro workspace or actionable failure.
+- **Behavior**: Validate platform support, verify or install prerequisites, materialize the distro workspace, and print exact next steps.
+
+#### Feature: Runtime compatibility enforcement
+- **Description**: Validate that the installed Pi runtime satisfies the distro contract.
+- **Inputs**: Installed `pi` version and distro manifest.
+- **Outputs**: Pass/fail compatibility result with remediation guidance.
+- **Behavior**: Block launch and release validation when the runtime contract is not met.
+
+#### Feature: Install receipt
+- **Description**: Record the result of a completed install.
+- **Inputs**: Distro manifest, target path, install timestamp, platform info.
+- **Outputs**: A local install receipt file.
+- **Behavior**: Write support/debug metadata so later doctor runs can identify what was installed and from which distro version.
+
+### Capability: Stable Runtime Surface
+Give users one team-owned way to run the product.
+
+#### Feature: Wrapper launcher
+- **Description**: Launch the company Pi stack through `bin/team-pi`.
+- **Inputs**: CLI args, distro manifest, local project path, Pi runtime availability.
+- **Outputs**: Running Pi process or actionable guidance.
+- **Behavior**: Run preflight checks, select the default stack, map supported subcommands, and forward the final invocation to `pi`.
+
+#### Feature: Team-default stack selection
+- **Description**: Standardize the launch stack the team gets by default.
+- **Inputs**: Distro manifest and packaged extensions.
+- **Outputs**: Default extension stack and supported named launch modes.
+- **Behavior**: Default to the full team stack and expose a small set of named alternatives without requiring users to know raw `pi -e ...` invocations.
+
+### Capability: Diagnosis and Support
+Reduce onboarding and runtime failures by making issues observable.
+
+#### Feature: Doctor command
+- **Description**: Expose a first-class health-check entry point through `doctor.sh`.
+- **Inputs**: Local toolchain state, manifest, project path, auth visibility, generated project assets.
+- **Outputs**: Human-readable or JSON health report.
+- **Behavior**: Verify platform support, command availability, version compatibility, project-layout completeness, and provider visibility; return non-zero on blocking failures.
+
+#### Feature: Quick and full doctor modes
+- **Description**: Separate fast local checks from slower provider probes.
+- **Inputs**: Doctor mode flags and manifest.
+- **Outputs**: Different diagnostic depth levels.
+- **Behavior**: Support a quick mode for wrapper preflight and a full mode for support/debugging.
+
+### Capability: Project Generation and Brownfield Adoption
+Preserve the scaffold value while upgrading it into a product.
+
+#### Feature: Versioned project generation
+- **Description**: Create new projects from the distro-backed scaffold.
+- **Inputs**: Project name, target directory, active template version.
+- **Outputs**: Initialized project repo with distro metadata.
+- **Behavior**: Reuse `init.sh`, preserve hidden assets, replace placeholders, initialize git, and inject the distro contract into generated projects.
+
+#### Feature: Brownfield asset adoption
+- **Description**: Allow existing repos to import the team defaults without full regeneration.
+- **Inputs**: Existing repo path and selected asset set.
+- **Outputs**: Imported extensions, support files, and guidance.
+- **Behavior**: Provide a documented, secondary adoption path that remains compatible with the wrapper and doctor surface.
+
+### Capability: Release Packaging and Validation
+Make the distro operationally shippable.
+
+#### Feature: Release artifact packaging
+- **Description**: Produce a clean release bundle from tagged repo state.
+- **Inputs**: Repo tag, distro manifest, versioned template, runtime scripts, docs.
+- **Outputs**: Versioned archive, checksum, and packaged manifest.
+- **Behavior**: Stage the required files, exclude secrets and local artifacts, and emit release outputs suitable for internal distribution.
+
+#### Feature: Product-level smoke testing
+- **Description**: Validate install, doctor, wrapper, and generation behavior at the product level.
+- **Inputs**: Release artifact or staged working tree, fake or real toolchains, test harness.
+- **Outputs**: Pass/fail release evidence.
+- **Behavior**: Exercise clean install, doctor failure/success cases, wrapper invocation, and generated-project compatibility before release.
+
+## Repository Structure
+
+```
+scaffold-root/
+├── README.md
+├── init.sh
+├── install.sh
+├── doctor.sh
+├── package.json
+├── manifest/
+│   └── distro.json
+├── bin/
+│   └── team-pi
+├── scripts/
+│   ├── export-v1.sh
+│   ├── package-release.sh
+│   ├── lib/
+│   │   └── common.sh
+│   ├── install/
+│   │   ├── prereqs.sh
+│   │   ├── materialize.sh
+│   │   └── post_install.sh
+│   └── doctor/
+│       └── checks.sh
+├── tests/
+│   ├── e2e.test.mjs
+│   └── distro.test.mjs
+├── docs/
+│   ├── prd-scaffold-rpg.txt
+│   ├── tdd-scaffold.md
+│   ├── prd-company-pi-distro-rpg.txt
+│   └── tdd-company-pi-distro.md
+└── v1/
+    ├── VERSION
+    ├── README.md
+    ├── justfile
+    ├── .env.sample
+    ├── extensions/
+    ├── .pi/
+    │   └── distro.json
+    ├── .claude/
+    └── .github/
+```
+
+## Module Definitions
+
+### Module: Distro Manifest
+- **Maps to capability**: Distro Manifest and Runtime Contract
+- **Responsibility**: Define the compatibility and packaging contract for the distro.
+- **File structure**:
+  ```
+  manifest/
+  └── distro.json
+  ```
+- **Exports**:
+  - Distro version metadata
+  - Supported runtime/tooling contract
+  - Default launch recipe and supported providers
+
+### Module: Install Surface
+- **Maps to capability**: Install and Bootstrap
+- **Responsibility**: Install and materialize the distro workspace on supported machines.
+- **File structure**:
+  ```
+  install.sh
+  scripts/install/
+  ├── prereqs.sh
+  ├── materialize.sh
+  └── post_install.sh
+  ```
+- **Exports**:
+  - `./install.sh [target-dir] [flags]`
+
+### Module: Doctor Surface
+- **Maps to capability**: Diagnosis and Support
+- **Responsibility**: Diagnose local environment, runtime, and project-layout issues.
+- **File structure**:
+  ```
+  doctor.sh
+  scripts/doctor/
+  └── checks.sh
+  ```
+- **Exports**:
+  - `./doctor.sh [--json] [--quick] [--project-dir PATH]`
+
+### Module: Wrapper Launcher
+- **Maps to capability**: Stable Runtime Surface
+- **Responsibility**: Provide the team-owned command users run every day.
+- **File structure**:
+  ```
+  bin/
+  └── team-pi
+  ```
+- **Exports**:
+  - `bin/team-pi`
+
+### Module: Scaffold Foundation
+- **Maps to capability**: Project Generation and Brownfield Adoption
+- **Responsibility**: Preserve the existing scaffold/template value beneath the distro layer.
+- **File structure**:
+  ```
+  init.sh
+  scripts/export-v1.sh
+  v1/
+  ├── justfile
+  ├── .env.sample
+  ├── extensions/
+  ├── .pi/
+  └── .claude/
+  ```
+- **Exports**:
+  - Versioned project generation
+  - Brownfield asset packaging
+  - Runtime assets used by the wrapper
+
+### Module: Release and Validation Harness
+- **Maps to capability**: Release Packaging and Validation
+- **Responsibility**: Package the distro and prove it works before release.
+- **File structure**:
+  ```
+  scripts/package-release.sh
+  tests/
+  ├── e2e.test.mjs
+  └── distro.test.mjs
+  ```
+- **Exports**:
+  - Release artifact bundle
+  - Product-level validation evidence
+
+## Dependency Chain
+
+### Foundation Layer (Phase 0)
+No dependencies - these are built first.
+
+- **Scaffold Foundation**: Provides versioned template assets and generation logic.
+- **Distro Manifest**: Provides the compatibility and packaging contract.
+
+### Bootstrap Layer (Phase 1)
+- **Install Surface**: Depends on [[Scaffold Foundation], [Distro Manifest]]
+- **Doctor Surface**: Depends on [[Distro Manifest], [Scaffold Foundation]]
+
+### Runtime Layer (Phase 2)
+- **Wrapper Launcher**: Depends on [[Doctor Surface], [Distro Manifest], [Scaffold Foundation]]
+- **Generated-project Distro Metadata**: Depends on [[Scaffold Foundation], [Distro Manifest]]
+
+### Release Layer (Phase 3)
+- **Release and Validation Harness**: Depends on [[Install Surface], [Doctor Surface], [Wrapper Launcher], [Scaffold Foundation], [Distro Manifest]]
+
+## Development Phases
+
+### Phase 0: Runtime Contract Foundation
+**Goal**: Define the distro contract and preserve the scaffold as the foundation.
+
+**Entry Criteria**: Existing scaffold repo and versioned template are present.
+
+**Tasks**:
+- [ ] Add the canonical distro manifest contract (depends on: none)
+  - Acceptance criteria: A repo-level manifest exists with distro version, template version, supported Pi range, supported OS list, required tool expectations, default launch recipe, and supported providers.
+  - Test strategy: Manifest validation test.
+
+- [ ] Define generated-project distro metadata behavior (depends on: [[Add the canonical distro manifest contract]])
+  - Acceptance criteria: Generated projects receive a copy of the runtime contract under `.pi/`.
+  - Test strategy: Generation test asserts metadata presence and correctness.
+
+**Exit Criteria**: The distro has a single source of truth for compatibility and generated projects preserve it.
+
+**Delivers**: A versioned runtime contract the rest of the product can rely on.
+
+---
+
+### Phase 1: Install and Support Entry Points
+**Goal**: Make the distro installable and diagnosable on supported machines.
+
+**Entry Criteria**: Phase 0 complete.
+
+**Tasks**:
+- [ ] Implement the supported-platform installer contract (depends on: [[Add the canonical distro manifest contract]])
+  - Acceptance criteria: `install.sh` validates platform support, prerequisite status, runtime compatibility, materializes the distro, and writes next-step output.
+  - Test strategy: Fake-binary install tests for macOS/Linux and blocked install cases.
+
+- [ ] Implement doctor quick/full mode behavior (depends on: [[Add the canonical distro manifest contract], [Define generated-project distro metadata behavior]])
+  - Acceptance criteria: `doctor.sh` reports blocking failures, supports `--quick` and `--json`, and checks runtime/project-layout/auth prerequisites.
+  - Test strategy: Doctor success/failure tests with stubbed commands and project fixtures.
+
+**Exit Criteria**: A user can install the distro or get a precise diagnosis on why install/use is blocked.
+
+**Delivers**: First-class setup and support entry points.
+
+---
+
+### Phase 2: Stable Daily Runtime
+**Goal**: Replace ad hoc launch knowledge with a team-owned runtime command.
+
+**Entry Criteria**: Phase 1 complete.
+
+**Tasks**:
+- [ ] Implement `bin/team-pi` wrapper behavior (depends on: [[Implement doctor quick/full mode behavior], [Implement the supported-platform installer contract]])
+  - Acceptance criteria: The wrapper runs preflight checks, routes to doctor on failure, and launches the default team stack on success.
+  - Test strategy: Wrapper invocation tests with stubbed Pi binary and failing preflight cases.
+
+- [ ] Standardize named launch modes (depends on: [[Implement `bin/team-pi` wrapper behavior]])
+  - Acceptance criteria: The wrapper exposes a small fixed set of named modes and defaults to the full team stack.
+  - Test strategy: Wrapper mode tests validate the forwarded Pi extension list.
+
+- [ ] Wire generated projects and docs to the distro surface (depends on: [[Standardize named launch modes], [Define generated-project distro metadata behavior]])
+  - Acceptance criteria: Generated projects advertise the wrapper/doctor model and still preserve project-generation and brownfield value.
+  - Test strategy: Generated README and recipe validation plus metadata assertions.
+
+**Exit Criteria**: Users no longer need to know raw `pi -e ...` launch syntax to use the team distro.
+
+**Delivers**: A stable user-facing runtime command surface.
+
+---
+
+### Phase 3: Release Packaging and Deployment Readiness
+**Goal**: Make the distro releasable as an internal product.
+
+**Entry Criteria**: Phase 2 complete.
+
+**Tasks**:
+- [ ] Implement release artifact packaging (depends on: [[Implement the supported-platform installer contract], [Implement `bin/team-pi` wrapper behavior]])
+  - Acceptance criteria: Packaging emits a versioned archive, checksum, manifest copy, and only the required runtime files.
+  - Test strategy: Packaging tests inspect staged outputs and excluded content.
+
+- [ ] Add full product-level smoke validation (depends on: [[Implement release artifact packaging], [Implement doctor quick/full mode behavior], [Wire generated projects and docs to the distro surface]])
+  - Acceptance criteria: Tests cover clean install, doctor success/failure, wrapper launch, and generated-project compatibility.
+  - Test strategy: `distro.test.mjs` plus selective opt-in local-tool smoke checks.
+
+- [ ] Define release evidence and sign-off workflow (depends on: [[Add full product-level smoke validation]])
+  - Acceptance criteria: Maintainers have explicit release evidence requirements for artifact integrity and product behavior.
+  - Test strategy: Manual release checklist plus automated gates.
+
+**Exit Criteria**: A maintainer can cut, validate, and distribute a release with objective evidence.
+
+**Delivers**: A deployable internal Pi distro for macOS and Linux.
+
+## Test Pyramid
+
+```
+        /\
+       /E2E\        ← 30% (clean install, wrapper, doctor, artifact smoke tests)
+      /------\
+     /Integration\  ← 40% (script/module interactions, manifest use, generated project wiring)
+    /------------\
+   /  Unit Tests  \ ← 30% (manifest parsing, version checks, helper functions)
+  /----------------\
+```
+
+## Coverage Requirements
+- Line coverage: 80% minimum for Node-based validation and helper code
+- Branch coverage: 75% minimum for version-check and diagnostics logic
+- Function coverage: 85% minimum for reusable helper functions
+- Statement coverage: 80% minimum for testable support code
+
+## Critical Test Scenarios
+
+### Installer
+**Happy path**:
+- Install on a supported macOS/Linux environment with all prerequisites satisfied.
+- Expected: Workspace materialized, receipt written, next-step output printed.
+
+**Edge cases**:
+- User chooses a non-default target directory.
+- Expected: Install succeeds in the chosen location and output references the correct path.
+
+**Error cases**:
+- Unsupported OS or wrong Pi version.
+- Expected: Install exits non-zero with explicit remediation guidance.
+
+**Integration points**:
+- `install.sh` with manifest, scaffold assets, and prerequisite/version checks.
+- Expected: Install behavior matches the manifest contract exactly.
+
+### Doctor
+**Happy path**:
+- Doctor runs on a healthy distro workspace.
+- Expected: Success result in both human-readable and JSON output modes.
+
+**Edge cases**:
+- Quick mode skips slower provider probes.
+- Expected: Quick mode still catches blocking local/tooling issues.
+
+**Error cases**:
+- Missing `pi`, missing `.env`, missing distro metadata, or missing provider visibility.
+- Expected: Doctor reports each blocking issue clearly and exits non-zero.
+
+**Integration points**:
+- Doctor with manifest, generated project metadata, and local CLI tools.
+- Expected: Health report reflects the real runtime contract.
+
+### Wrapper
+**Happy path**:
+- User runs `bin/team-pi` with no args.
+- Expected: Wrapper launches the default full team stack.
+
+**Edge cases**:
+- User selects a named mode or forwards raw Pi args.
+- Expected: Wrapper forwards the correct final Pi invocation.
+
+**Error cases**:
+- Preflight fails.
+- Expected: Wrapper points to doctor guidance instead of failing silently.
+
+**Integration points**:
+- Wrapper with doctor, manifest, and packaged extensions.
+- Expected: Wrapper behavior remains consistent with docs and install output.
+
+### Generated Projects
+**Happy path**:
+- Generate a project from the distro-backed scaffold.
+- Expected: Project includes hidden assets, distro metadata, and updated runtime guidance.
+
+**Edge cases**:
+- Brownfield adoption uses only a subset of assets.
+- Expected: Imported assets remain compatible with wrapper and doctor expectations.
+
+**Error cases**:
+- Generated project lacks required metadata.
+- Expected: Doctor and wrapper identify the missing contract data.
+
+**Integration points**:
+- `init.sh`, `v1/`, wrapper/doctor docs, distro metadata.
+- Expected: Generated projects preserve both scaffold and distro behavior.
+
+## Test Generation Guidelines
+- Keep existing scaffold-generation coverage in `tests/e2e.test.mjs`.
+- Add new distro-product tests in `tests/distro.test.mjs` instead of overloading one file with mixed concerns.
+- Stub external binaries unless a test explicitly opts into local smoke checks.
+- Validate command output and file contents whenever product behavior depends on docs or metadata being correct.
+- Treat artifact contents and generated-project metadata as contract tests, not incidental implementation details.
+
+## System Components
+- **Distro manifest**: canonical compatibility and release contract.
+- **Installer**: supported-platform bootstrap and workspace materialization.
+- **Doctor**: support and health-validation interface.
+- **Wrapper launcher**: stable daily command surface.
+- **Scaffold foundation**: template generation and packaged runtime assets.
+- **Release packager**: artifact assembly and integrity outputs.
+- **Validation harness**: automated product-level verification.
+
+## Data Models
+- **`manifest/distro.json`**:
+  - `distroVersion`
+  - `templateVersion`
+  - `piVersionRange`
+  - `bunVersionRange`
+  - `justVersionRange`
+  - `supportedOs`
+  - `defaultLaunchRecipe`
+  - `namedLaunchModes`
+  - `supportedProviders`
+  - `releaseArtifactName`
+
+- **`v1/.pi/distro.json`**:
+  - copy of the repo-level manifest fields needed at runtime in generated projects
+
+- **Install receipt**:
+  - install timestamp
+  - platform
+  - distro version
+  - template version
+  - target path
+
+## Technology Stack
+- Bash for install/doctor/packaging entry points and helpers
+- Node.js test runner for product-level validation
+- Pi CLI as the upstream runtime
+- Bun and just as required local toolchain components
+- JSON manifest for the runtime contract
+
+**Decision: Build a thin distro layer around upstream Pi**
+- **Rationale**: Preserves existing scaffold value while making deployment reproducible.
+- **Trade-offs**: Still depends on upstream Pi behavior and version detection.
+- **Alternatives considered**: Forking Pi or keeping the product as a source-only scaffold.
+
+**Decision: Standardize on wrapper + doctor**
+- **Rationale**: A deployment-ready internal product needs a stable runtime surface and a first-class diagnostic path.
+- **Trade-offs**: Adds repo-owned command surfaces to maintain.
+- **Alternatives considered**: Installer-only or wrapper-only approaches.
+
+**Decision: Support macOS and Linux first**
+- **Rationale**: Matches current target usage while keeping the first release bounded.
+- **Trade-offs**: Windows support is deferred.
+- **Alternatives considered**: macOS only, or all three desktop platforms in the first release.
+
+## Technical Risks
+**Risk**: Upstream Pi versioning or auth visibility behavior changes.
+- **Impact**: High
+- **Likelihood**: Medium
+- **Mitigation**: Keep the manifest explicit, validate via doctor, and gate releases with runtime smoke tests.
+- **Fallback**: Narrow supported Pi versions and publish an updated manifest/release.
+
+**Risk**: Wrapper becomes too opaque for advanced users.
+- **Impact**: Medium
+- **Likelihood**: Medium
+- **Mitigation**: Preserve pass-through mode and make the forwarded runtime behavior explicit in docs.
+- **Fallback**: Allow documented raw Pi escape hatch while retaining wrapper as the default path.
+
+**Risk**: Installer complexity grows into a second hidden runtime system.
+- **Impact**: Medium
+- **Likelihood**: Medium
+- **Mitigation**: Reuse scaffold assets and `init.sh` where possible instead of duplicating template logic.
+- **Fallback**: Reduce install scope to verification/materialization only and keep optional setup steps documented.
+
+## Dependency Risks
+- Availability and installability of `pi`, `bun`, and `just` on supported machines.
+- Upstream provider/model visibility behavior as surfaced through `pi --list-models`.
+- Internal distribution method for release artifacts and checksums.
+
+## Scope Risks
+- Trying to solve GUI install, auto-update, and Windows support in the first release.
+- Letting starter-only work and distro-only work blur again in the docs.
+- Expanding named launch modes until the wrapper becomes an unbounded recipe system.
+
+## References
+- `.taskmaster/templates/example_prd_rpg.txt`
+- `docs/prd-scaffold-rpg.txt`
+- `docs/tdd-scaffold.md`
+- `docs/prd-team-distro.md`
+- `docs/tdd-team-distro.md`
+- `v1/justfile`
+- `v1/.env.sample`
+- `tests/e2e.test.mjs`
+
+## Glossary
+- **Scaffold foundation**: the existing template generator and `v1/` payload.
+- **Distro manifest**: the canonical runtime/release contract for the internal product.
+- **Wrapper**: `bin/team-pi`, the user-facing runtime entry point.
+- **Doctor**: the health-check command for setup and support.
+- **Install receipt**: local metadata showing what distro version was installed and where.
+
+## Open Questions
+- What internal distribution channel will host the packaged release artifacts?
+- Do we want the installer to install missing `pi` automatically or stop with platform-specific instructions in the first release?

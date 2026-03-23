@@ -3,6 +3,22 @@ set dotenv-load := true
 default:
     @just --list
 
+# ─────────────────────────────────────────────
+# Team Commands
+# ─────────────────────────────────────────────
+
+# Run diagnostic check
+doctor:
+    @./doctor.sh
+
+# Launch the official team stack
+team-pi:
+    @./bin/team-pi
+
+# ─────────────────────────────────────────────
+# Groups
+# ─────────────────────────────────────────────
+
 # g1
 
 # 1. default pi

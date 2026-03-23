@@ -56,18 +56,27 @@ cp -R "$VERSION_DIR" "$TARGET_DIR"
 
 # ── Replace placeholders ──────────────────────────────────────────────────
 
+replace_literal_in_file() {
+  local old="$1"
+  local new="$2"
+  local file="$3"
+  OLD="$old" NEW="$new" perl -0pi -e 's/\Q$ENV{OLD}\E/$ENV{NEW}/g' "$file"
+}
+
 # README.md and CLAUDE.md use {{PROJECT_NAME}}
-find "$TARGET_DIR" -type f \( -name "*.md" -o -name "*.json" \) -exec \
-  sed -i '' "s/{{PROJECT_NAME}}/$PROJECT_NAME/g" {} +
+while IFS= read -r -d '' file; do
+  replace_literal_in_file "{{PROJECT_NAME}}" "$PROJECT_NAME" "$file"
+done < <(find "$TARGET_DIR" -type f \( -name "*.md" -o -name "*.json" \) -print0)
 
 # package.json uses {{project-name}} for the slug
-find "$TARGET_DIR" -type f -name "package.json" -exec \
-  sed -i '' "s/{{project-name}}/$PROJECT_SLUG/g" {} +
+while IFS= read -r -d '' file; do
+  replace_literal_in_file "{{project-name}}" "$PROJECT_SLUG" "$file"
+done < <(find "$TARGET_DIR" -type f -name "package.json" -print0)
 
 # ── Fix pure-focus.ts usage comment path ──────────────────────────────────
 
 if [[ -f "$TARGET_DIR/extensions/pure-focus.ts" ]]; then
-  sed -i '' 's|examples/extensions/pure-focus.ts|extensions/pure-focus.ts|' "$TARGET_DIR/extensions/pure-focus.ts"
+  replace_literal_in_file "examples/extensions/pure-focus.ts" "extensions/pure-focus.ts" "$TARGET_DIR/extensions/pure-focus.ts"
 fi
 
 # ── Init git ──────────────────────────────────────────────────────────────

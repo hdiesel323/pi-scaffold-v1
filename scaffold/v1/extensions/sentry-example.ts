@@ -27,7 +27,7 @@ let options: SentryOptions = { valid: false };
 function validateDsn(dsn: string | undefined): { dsn: string | undefined; valid: boolean } {
 	if (!dsn) return { dsn: undefined, valid: false };
 
-	const placeholderPatterns = ["https://...", "http://...", "YOUR_", "your-", ".sentry.io/"];
+	const placeholderPatterns = ["https://...", "http://...", "YOUR_", "your-"];
 	for (const pattern of placeholderPatterns) {
 		if (dsn.includes(pattern)) return { dsn: undefined, valid: false };
 	}

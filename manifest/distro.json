@@ -1,0 +1,26 @@
+{
+  "distroVersion": "1.0.0",
+  "templateVersion": "v1",
+  "piVersionRange": ">=0.0.0",
+  "bunVersionRange": ">=1.0.0",
+  "justVersionRange": ">=1.0.0",
+  "supportedOs": ["darwin", "linux"],
+  "defaultLaunchRecipe": "ext-sentry-agent-team",
+  "namedLaunchModes": {
+    "default": "ext-sentry-agent-team",
+    "minimal": "ext-minimal",
+    "health-check": "ext-health-check",
+    "agent-team": "ext-agent-team"
+  },
+  "supportedProviders": [
+    "anthropic",
+    "openai",
+    "google",
+    "minimax",
+    "zai",
+    "groq",
+    "xai",
+    "openrouter"
+  ],
+  "releaseArtifactName": "company-pi-distro"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "pi-scaffold-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export:v1:help": "bash ./scripts/export-v1.sh",
+    "test": "node --test tests/e2e.test.mjs",
+    "test:e2e": "node --test tests/e2e.test.mjs"
+  }
+}

@@ -3,6 +3,22 @@ set dotenv-load := true
 default:
     @just --list
 
+# ─────────────────────────────────────────────
+# Team Commands
+# ─────────────────────────────────────────────
+
+# Run diagnostic check
+doctor:
+    @./doctor.sh
+
+# Launch the official team stack
+team-pi:
+    @./bin/team-pi
+
+# ─────────────────────────────────────────────
+# Groups
+# ─────────────────────────────────────────────
+
 # g1
 
 # 1. default pi
@@ -90,65 +106,3 @@ ext-health-check:
 # Sentry example: error tracking integration demo
 ext-sentry-example:
     pi -e extensions/sentry-example.ts -e extensions/minimal.ts
-
-# utils
-
-# ─────────────────────────────────────────────
-# Sentry Commands
-# ─────────────────────────────────────────────
-
-# Test Sentry connection
-sentry-ping:
-    @npx sentry-cli info
-
-# Get current release version
-sentry-version:
-    @npx sentry-cli releases propose-version
-
-# Create new release (for CI)
-sentry-release-create:
-    @npx sentry-cli releases new $$(npx sentry-cli releases propose-version) --ignore-empty
-
-# Upload source maps
-sentry-sourcemaps +files:
-    @npx sentry-cli sourcemaps upload dist {{files}}
-
-# Check for unreleased issues
-sentry-issues:
-    @npx sentry-cli releases needs $$(npx sentry-cli releases propose-version)
-
-# Finalize release
-sentry-release-finalize:
-    @npx sentry-cli releases finalize $$(npx sentry-cli releases propose-version)
-
-# Open pi with one or more stacked extensions in a new terminal: just open minimal tool-counter
-open +exts:
-    #!/usr/bin/env bash
-    args=""
-    for ext in {{exts}}; do
-        args="$args -e extensions/$ext.ts"
-    done
-    cmd="cd '{{justfile_directory()}}' && pi$args"
-    escaped="${cmd//\\/\\\\}"
-    escaped="${escaped//\"/\\\"}"
-    osascript -e "tell application \"Terminal\" to do script \"$escaped\""
-
-# Open every extension in its own terminal window
-all:
-    just open pi
-    just open pure-focus
-    just open minimal theme-cycler
-    just open cross-agent minimal
-    just open purpose-gate minimal
-    just open tool-counter
-    just open tool-counter-widget minimal
-    just open subagent-widget pure-focus theme-cycler
-    just open tilldone theme-cycler
-    just open agent-team theme-cycler
-    just open system-select minimal theme-cycler
-    just open damage-control minimal theme-cycler
-    just open agent-chain theme-cycler
-    just open pi-pi theme-cycler
-    just open sentry minimal
-    just open sentry-example minimal
-    just open health-check sentry minimal

@@ -64,40 +64,55 @@ pi --model groq/llama-3.3-70b
 
 ---
 
-## Quick Start
+## 🚀 Quick Start (Production Ready)
 
+### 1. New Project
+To bootstrap a new Pi-based repository from this scaffold:
 ```bash
-# Clone and setup
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-agent
-cd my-agent
+./init.sh my-new-agent
+cd my-new-agent
+```
 
-# Copy and configure environment
+### 2. Existing (Brownfield) Project
+To add Pi configuration and extensions to an existing repository:
+```bash
+# Clone this scaffold alongside or inside your repo
+./init.sh --brownfield .
+```
+
+### 3. Diagnose & Setup
+```bash
+# 1. Configure environment
 cp .env.sample .env
-# Add your API keys (OpenAI, Anthropic, Gemini, etc.)
-# Add SENTRY_DSN for error tracking (optional)
+# edit .env and add your provider keys
 
-# Run with error tracking
-just ext-sentry-agent-team
+# 2. Run diagnostic
+just doctor
+```
+
+### 4. Launch the Team Stack
+```bash
+# Launch with standard team extensions (agent-team, sentry, health-check)
+just team-pi
 ```
 
 ---
 
-## Quick Start (from Claude Code)
+## 🏥 Diagnostic Tool (`doctor.sh`)
+The `doctor.sh` script (also available via `just doctor`) verifies:
+- Required tools (`pi`, `bun`, `just`) are installed.
+- Platform support (macOS/Linux).
+- Presence of `.env` and provider API keys.
+- Completeness of Pi project assets (`.pi/`, `.claude/`, `extensions/`).
 
-Create and configure a new Pi scaffold project entirely from Claude Code, then exit to run with Pi:
+---
 
-```
-# Tell Claude Code to clone and setup the scaffold
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-pi-agent
-cd my-pi-agent
-cp .env.sample .env
-code .   # or leave it open in your editor
+## 🛠 Team Launcher (`team-pi`)
+The `bin/team-pi` wrapper (also available via `just team-pi`) ensures everyone uses the same default extension stack:
+- **agent-team**: The team's dispatcher and orchestrator.
+- **sentry**: Error tracking and reporting.
+- **health-check**: Connectivity and provider status monitoring.
 
-# Now exit Claude Code
-exit
-```
-
-Then in your terminal:
 ```bash
 cd my-pi-agent
 
@@ -160,63 +175,35 @@ just ext-agent-team          # Multi-agent dispatcher
 
 ## Existing Project — Brownfield Setup
 
-For projects that already exist, add Pi extensions without cloning the full scaffold:
+If you have an existing repository and want to add the team's Pi configuration without starting over, follow these steps:
 
+### 1. Clone the Scaffold
+First, clone this scaffold repository to your local machine:
 ```bash
-cd /your-existing-project
-
-# 1. Copy the justfile (or just the recipes you need)
-cp /Users/admin/pi-vs-cc/scaffold/v1/justfile .
-
-# 2. Copy the extensions you want to use
-mkdir -p extensions
-cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/minimal.ts extensions/
-cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/sentry.ts extensions/
-# Copy other extensions as needed (see Extension Reference below)
-
-# 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
-mkdir -p .pi/agents
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/*.md .pi/agents/
-cp -r /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/pi-pi .pi/agents/
-
-# 4. Copy teams config (REQUIRED for agent-team)
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/teams.yaml .pi/agents/
-
-# 5. Add environment config
-cp /Users/admin/pi-vs-cc/scaffold/v1/.env.sample .env
-# Edit .env with your actual API keys
-
-# 6. Optional: Copy themes you like
-mkdir -p .pi/themes
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/themes/*.json .pi/themes/
+git clone <your-scaffold-repo-url> pi-scaffold
+cd pi-scaffold
 ```
 
-Now run with your extensions:
+### 2. Inject Pi into your Project
+Run the `init.sh` script with the `--brownfield` flag, pointing it to your existing project's directory:
 ```bash
-source .env && pi -e extensions/minimal.ts
-# or with Sentry:
-source .env && pi -e extensions/sentry.ts -e extensions/minimal.ts
-# or with agent-team:
-source .env && just ext-agent-team
+./init.sh --brownfield /path/to/your-existing-project
 ```
 
-### Brownfield — Extension-Only Imports
+**What this does:**
+- Merges the `.pi/` (agents/themes) and `.claude/` (prompts) directories.
+- Adds the team's `extensions/` folder.
+- **Appends** the Pi recipes to your existing `justfile`.
+- Copies `.env.sample` and `RESERVED_KEYS.md` if they don't exist.
+- Runs `bun install` to add the necessary dependencies.
 
-If you only want specific extensions, you can copy just those files:
-
+### 3. Setup & Launch
 ```bash
-# Pick and choose what you need:
-extensions/
-  minimal.ts          # Basic config (model, context blocks)
-  sentry.ts           # Error tracking
-  agent-team.ts       # Multi-agent dispatcher
-  agent-chain.ts      # Sequential pipeline
-  health-check.ts    # /health command
-  theme-cycler.ts    # Theme switching
-  ...
+cd /path/to/your-existing-project
+cp .env.sample .env     # Add your keys
+just doctor             # Verify setup
+just team-pi            # Launch
 ```
-
-Each extension is self-contained — just copy the `.ts` file and run `pi -e extensions/that-file.ts`.
 
 ---
 

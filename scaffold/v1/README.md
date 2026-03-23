@@ -4,6 +4,13 @@
 
 A comprehensive Pi Coding Agent project scaffold with production-ready extension patterns, advanced multi-agent workflows, safety controls, themes, and built-in error tracking.
 
+This README describes the generated project template contained in `v1/`.
+
+Important boundary:
+- this template is meant to be copied into a new repo by the scaffold
+- it assumes the upstream `pi` CLI is installed separately
+- it is not a bundled Pi runtime or full team distro by itself
+
 **Built on [Pi Agent](https://pi.dev) by [Mario Zechner](https://github.com/disler).**
 
 Inspired by [pi-vs-claude-code](https://github.com/disler/pi-vs-claude-code).
@@ -39,61 +46,104 @@ Inspired by [pi-vs-claude-code](https://github.com/disler/pi-vs-claude-code).
 
 Pi supports **20+ providers** natively. Configure your API keys in `.env`:
 
-| Provider | Env Var | Example Model |
-|----------|---------|---------------|
-| Anthropic | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6` |
-| OpenAI | `OPENAI_API_KEY` | `gpt-4o` |
-| Google | `GEMINI_API_KEY` | `gemini-2.0-flash` |
-| MiniMax | `MINIMAX_API_KEY` | `minimax/chatgpt-o3-mini` |
-| ZAI | `ZAI_API_KEY` | `zai/Bests` |
-| Groq | `GROQ_API_KEY` | `groq/llama-3.3-70b` |
-| xAI | `XAI_API_KEY` | `xai/grok-2` |
-| OpenRouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` |
+| Provider | Env Var | Discover Models |
+|----------|---------|-----------------|
+| Anthropic | `ANTHROPIC_API_KEY` | `pi --list-models anthropic` |
+| OpenAI | `OPENAI_API_KEY` | `pi --list-models openai` |
+| Google | `GEMINI_API_KEY` | `pi --list-models google` |
+| MiniMax | `MINIMAX_API_KEY` | `pi --list-models minimax` |
+| ZAI | `ZAI_API_KEY` | `pi --list-models zai` |
+| Groq | `GROQ_API_KEY` | `pi --list-models groq` |
+| xAI | `XAI_API_KEY` | `pi --list-models xai` |
+| OpenRouter | `OPENROUTER_API_KEY` | `pi --list-models openrouter` |
 
 ### Switching Models
 
 ```bash
-# At runtime with flag
-pi --model minimax/chatgpt-o3-mini
-pi --model zai/Bests
-pi --model groq/llama-3.3-70b
+# See what Pi can actually use with your current auth/providers
+pi --list-models
+pi --list-models gemini
+
+# Start with an explicit provider/model
+pi --provider google --model gemini-2.5-flash
+pi --model google/gemini-2.5-flash
+pi --model google/gemini-2.5-pro
 
 # Or use /model command in Pi
-/model groq/llama-3.3-70b
+/model
+/model google/gemini-2.5-flash
+```
+
+Pi resolves models from the providers you have authenticated. Per the Pi docs, credentials come from `/login`, `~/.pi/agent/auth.json`, or provider API keys in your environment, and `auth.json` takes precedence over env vars. If `/model` appears stuck on one family, confirm availability with `pi --list-models` first and verify that the target provider is actually authenticated.
+
+### `/model` Troubleshooting
+
+If model switching seems broken:
+
+```bash
+# 1. See what Pi can use right now
+pi --list-models
+
+# 2. Check a specific provider you expect to use
+pi --list-models minimax
+pi --list-models zai
+pi --list-models groq
+```
+
+If a provider returns no models, Pi does not currently see valid auth for it. In local verification, providers only appeared after the matching auth source was present. Also note that model IDs change over time, so stale names like old blog/README examples may silently fail to switch.
+
+---
+
+## 🚀 Quick Start (Production Ready)
+
+### 1. Diagnose & Setup
+```bash
+# 1. Configure environment
+cp .env.sample .env
+# edit .env and add your provider keys
+
+# 2. Run diagnostic
+just doctor
+```
+
+### 2. Launch the Team Stack
+```bash
+# Launch with standard team extensions (agent-team, sentry, health-check)
+just team-pi
 ```
 
 ---
 
-## Quick Start
+## 🏥 Diagnostic Tool (`doctor.sh`)
+The `doctor.sh` script (also available via `just doctor`) verifies:
+- Required tools (`pi`, `bun`, `just`) are installed.
+- Platform support (macOS/Linux).
+- Presence of `.env` and provider API keys.
+- Completeness of Pi project assets (`.pi/`, `.claude/`, `extensions/`).
 
-```bash
-# Clone and setup
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-agent
-cd my-agent
+---
 
-# Copy and configure environment
-cp .env.sample .env
-# Add your API keys (OpenAI, Anthropic, Gemini, etc.)
-# Add SENTRY_DSN for error tracking (optional)
-
-# Run with error tracking
-just ext-sentry-agent-team
-```
+## 🛠 Team Launcher (`team-pi`)
+The `bin/team-pi` wrapper (also available via `just team-pi`) ensures everyone uses the same default extension stack:
+- **agent-team**: The team's dispatcher and orchestrator.
+- **sentry**: Error tracking and reporting.
+- **health-check**: Connectivity and provider status monitoring.
 
 ---
 
 ## Quick Start (from Claude Code)
 
-Create and configure a new Pi scaffold project entirely from Claude Code, then exit to run with Pi:
+Create and configure a new Pi scaffold project from the scaffold repo, then exit to run with Pi:
 
 ```
-# Tell Claude Code to clone and setup the scaffold
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-pi-agent
+# Open the scaffold repo and generate a project
+cd /path/to/scaffold
+./init.sh my-pi-agent
 cd my-pi-agent
-cp .env.sample .env
-code .   # or leave it open in your editor
 
-# Now exit Claude Code
+# Configure the generated project, then exit Claude Code
+cp .env.sample .env
+code .
 exit
 ```
 
@@ -130,11 +180,11 @@ This loads foundational context for the scaffold.
 
 ## New Project — Full Scaffold Install
 
-For new Pi Agent projects, clone the full scaffold:
+For new Pi Agent projects, generate from the scaffold:
 
 ```bash
-# Clone the scaffold
-git clone https://github.com/hdiesel323/pi-scaffold-v1.git my-pi-agent
+# From the scaffold repo:
+./init.sh my-pi-agent
 cd my-pi-agent
 
 # Copy environment template
@@ -156,67 +206,34 @@ just ext-minimal             # Bare-bones config
 just ext-agent-team          # Multi-agent dispatcher
 ```
 
+This path creates a repo from the scaffold template. It does not install or bundle the `pi` CLI itself.
+
 ---
 
 ## Existing Project — Brownfield Setup
 
-For projects that already exist, add Pi extensions without cloning the full scaffold:
+If you already have a repository and want to add the team's Pi configuration, follow these steps:
 
+### 1. Clone the Scaffold
+First, clone the team's scaffold repository to a temporary location:
 ```bash
-cd /your-existing-project
-
-# 1. Copy the justfile (or just the recipes you need)
-cp /Users/admin/pi-vs-cc/scaffold/v1/justfile .
-
-# 2. Copy the extensions you want to use
-mkdir -p extensions
-cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/minimal.ts extensions/
-cp /Users/admin/pi-vs-cc/scaffold/v1/extensions/sentry.ts extensions/
-# Copy other extensions as needed (see Extension Reference below)
-
-# 3. Copy agent definitions (REQUIRED for agent-team, agent-chain, etc.)
-mkdir -p .pi/agents
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/*.md .pi/agents/
-cp -r /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/pi-pi .pi/agents/
-
-# 4. Copy teams config (REQUIRED for agent-team)
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/agents/teams.yaml .pi/agents/
-
-# 5. Add environment config
-cp /Users/admin/pi-vs-cc/scaffold/v1/.env.sample .env
-# Edit .env with your actual API keys
-
-# 6. Optional: Copy themes you like
-mkdir -p .pi/themes
-cp /Users/admin/pi-vs-cc/scaffold/v1/.pi/themes/*.json .pi/themes/
+git clone <your-scaffold-repo-url> pi-scaffold
+cd pi-scaffold
 ```
 
-Now run with your extensions:
+### 2. Inject Pi into your Project
+Run the `init.sh` script with the `--brownfield` flag, pointing it to your project's directory:
 ```bash
-source .env && pi -e extensions/minimal.ts
-# or with Sentry:
-source .env && pi -e extensions/sentry.ts -e extensions/minimal.ts
-# or with agent-team:
-source .env && just ext-agent-team
+./init.sh --brownfield /path/to/your-existing-project
 ```
 
-### Brownfield — Extension-Only Imports
-
-If you only want specific extensions, you can copy just those files:
-
+### 3. Setup & Launch
 ```bash
-# Pick and choose what you need:
-extensions/
-  minimal.ts          # Basic config (model, context blocks)
-  sentry.ts           # Error tracking
-  agent-team.ts       # Multi-agent dispatcher
-  agent-chain.ts      # Sequential pipeline
-  health-check.ts    # /health command
-  theme-cycler.ts    # Theme switching
-  ...
+cd /path/to/your-existing-project
+cp .env.sample .env     # Add your keys
+just doctor             # Verify setup
+just team-pi            # Launch
 ```
-
-Each extension is self-contained — just copy the `.ts` file and run `pi -e extensions/that-file.ts`.
 
 ---
 

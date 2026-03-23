@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Company Pi Team Launcher — team-pi
+#
+# Launches the team-standard Pi environment with preflight checks.
+#
+set -euo pipefail
+
+BIN_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$BIN_DIR/.." && pwd)"
+
+# ── Preflight ───────────────────────────────────────────────────────────────
+
+# Ensure we have Pi
+if ! command -v pi &>/dev/null; then
+  echo "Error: 'pi' command not found. Run './doctor.sh' for help."
+  exit 1
+fi
+
+# Load environment if .env exists
+if [[ -f "$ROOT_DIR/.env" ]]; then
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/.env"
+fi
+
+# ── Launch ──────────────────────────────────────────────────────────────────
+
+# Default extension stack from manifest/justfile
+# In this v1 scaffold, we prefer the full team stack:
+# - agent-team (multi-agent dispatcher)
+# - sentry (error tracking)
+# - health-check (connectivity)
+
+DEFAULT_EXTENSIONS=(
+  "extensions/health-check.ts"
+  "extensions/agent-team.ts"
+  "extensions/sentry.ts"
+)
+
+# Convert array to -e flags
+EXT_FLAGS=""
+for ext in "${DEFAULT_EXTENSIONS[@]}"; do
+  if [[ -f "$ROOT_DIR/$ext" ]]; then
+    EXT_FLAGS="$EXT_FLAGS -e $ROOT_DIR/$ext"
+  fi
+done
+
+echo "🚀 Launching Company Pi..."
+# exec replaces the shell with the pi process
+exec pi $EXT_FLAGS "$@"

@@ -1,0 +1,501 @@
+# Pi Scaffold PRD
+
+## Problem Statement
+The current repository provides useful Pi project assets, but the product boundary is easy to blur because the repo contains both scaffold mechanics at the root and a rich generated workspace under `v1/`. Without a clear scaffold-first PRD, work tends to drift from "generate a reproducible Pi project template" into "ship a full Pi distribution," which changes scope, dependencies, and implementation cost.
+
+The actual pain point for users today is narrower:
+
+- Team members need a fast way to bootstrap a new Pi-based codebase with a known set of extensions, prompts, agents, themes, CI, and docs.
+- Maintainers need a safe way to evolve the template without breaking prior versions.
+- Contributors need confidence that generated projects contain all expected hidden assets and launch recipes.
+
+Existing solutions do not fully solve this because:
+
+- Manual copying of extensions and `.pi/` assets into new repos is error-prone.
+- The repo contains a lot of capability in `v1/`, but root-level product intent is only lightly documented in `README.md`.
+- Validation currently proves generation behavior, but the scaffold purpose itself is not crisply captured as a product artifact.
+
+Success means the repo is explicitly defined and maintained as a versioned scaffold product:
+
+- users can generate a new Pi project from a known template version in one command
+- maintainers can ship new scaffold versions without mutating old ones
+- generated projects consistently include the expected assets, placeholders, and launch surfaces
+- validation catches regressions in scaffold generation and documented usage
+
+## Target Users
+- **Team developers**: want to start a new Pi-based repo quickly with a prebuilt extension stack, agent definitions, themes, and docs.
+- **Repo maintainers**: want to evolve the scaffold safely by adding new versions (`v2/`, `v3/`, etc.) without breaking reproducibility for old versions.
+- **Brownfield adopters**: want to copy selected scaffold assets into an existing repo using the documented extension-only path.
+- **QA / tooling contributors**: want automated proof that scaffold generation preserves hidden files, recipe wiring, and placeholder replacement.
+
+## Success Metrics
+- 100% of scaffold generations from the current version create a git-initialized project directory with required hidden assets present.
+- 0 breaking changes to older scaffold versions when a new version directory is introduced.
+- 100% of documented core recipes in the current scaffold version are covered by E2E validation.
+- New project bootstrap time stays under 2 minutes on a normal machine, excluding external tool installation.
+- The root README and scaffold PRD consistently describe the product as a versioned scaffold, not a bundled Pi runtime.
+
+## Capability Tree
+
+### Capability: Template Asset Packaging
+Package a complete Pi project template that can be copied into a new repository.
+
+#### Feature: Base workspace template
+- **Description**: Provide a versioned directory containing the project files that define a generated Pi workspace.
+- **Inputs**: Scaffold version directory such as `v1/`.
+- **Outputs**: A copyable template tree for generated projects.
+- **Behavior**: Store the canonical project files, hidden directories, docs, extensions, and config assets under a versioned folder.
+
+#### Feature: Extension stack packaging
+- **Description**: Include runnable Pi extensions and supporting runtime files in the template.
+- **Inputs**: Extension source files, `justfile`, package metadata, and environment samples.
+- **Outputs**: A generated project with a consistent extension launch surface.
+- **Behavior**: Package `extensions/`, `justfile`, `package.json`, and `.env.sample` so users can launch predefined extension stacks after generation.
+
+#### Feature: Team asset packaging
+- **Description**: Include agent definitions, themes, prompt sources, CI files, and supporting docs in the template.
+- **Inputs**: `.pi/`, `.claude/`, `.github/`, and markdown docs from the current version directory.
+- **Outputs**: A generated project with team-standard supporting assets.
+- **Behavior**: Copy hidden directories and docs as part of the template so generated projects are complete from the start.
+
+#### Feature: Optional bolt-on packaging
+- **Description**: Provide installable optional assets that can extend generated projects without altering the base scaffold flow.
+- **Inputs**: Bolt-on installer scripts and optional agent sets.
+- **Outputs**: Reusable optional additions to the generated workspace.
+- **Behavior**: Keep optional add-ons versioned alongside the scaffold and documented separately from the base generation path.
+
+### Capability: Project Generation
+Turn a versioned template into a usable project directory.
+
+#### Feature: Target project creation
+- **Description**: Create a new target directory from the selected scaffold version.
+- **Inputs**: Project name, optional target parent directory, current scaffold version directory.
+- **Outputs**: New project folder containing the copied template.
+- **Behavior**: Validate inputs, prevent overwriting existing directories, and copy the entire versioned template into the target location.
+
+#### Feature: Placeholder replacement
+- **Description**: Replace template placeholders with project-specific values during generation.
+- **Inputs**: Project name, slugified project name, copied template files.
+- **Outputs**: Generated files with project-specific metadata values.
+- **Behavior**: Replace `{{PROJECT_NAME}}` in markdown/JSON files and `{{project-name}}` in `package.json` files across the generated tree.
+
+#### Feature: Post-copy initialization
+- **Description**: Prepare the generated project for immediate use after copy.
+- **Inputs**: Generated project directory and local machine tool availability.
+- **Outputs**: Git-initialized project and optional installed dependencies.
+- **Behavior**: Initialize git, optionally run `bun install`, and print the next steps for configuring `.env` and starting Pi.
+
+### Capability: Versioned Reproducibility
+Allow the scaffold to evolve without changing the behavior of previously shipped versions.
+
+#### Feature: Version directory isolation
+- **Description**: Keep each scaffold release in its own immutable template directory.
+- **Inputs**: Template files for a new release.
+- **Outputs**: Separate version directory such as `v1/`, `v2/`, etc.
+- **Behavior**: Create new scaffold versions by copying the prior version into a new directory and changing the new directory only.
+
+#### Feature: Scaffold version signaling
+- **Description**: Expose the scaffold version used during project generation.
+- **Inputs**: Current version metadata file.
+- **Outputs**: Human-readable version information in generation logs and template docs.
+- **Behavior**: Read `VERSION` from the selected template directory and print it during generation and documentation.
+
+#### Feature: Backward-safe evolution
+- **Description**: Ensure improvements to the scaffold do not mutate old template versions.
+- **Inputs**: New scaffold requirements and existing version directories.
+- **Outputs**: A new scaffold version path instead of in-place mutation of old versions.
+- **Behavior**: Treat existing version directories as reproducible historical artifacts and place meaningful changes in a new version directory.
+
+### Capability: Validation and Documentation
+Prove scaffold behavior and explain how to use it.
+
+#### Feature: E2E scaffold verification
+- **Description**: Validate scaffold generation, hidden asset inclusion, and recipe wiring.
+- **Inputs**: `init.sh`, template files, fake or real local tools, E2E tests.
+- **Outputs**: Pass/fail evidence for scaffold correctness.
+- **Behavior**: Generate temporary projects, assert required files exist, assert placeholders are replaced, and assert recipe invocations match documented extension stacks.
+
+#### Feature: Usage documentation
+- **Description**: Explain the scaffold product boundary and generation workflow.
+- **Inputs**: Root README, version README, bootstrap behavior, brownfield guidance.
+- **Outputs**: Accurate docs for new-project and extension-only use cases.
+- **Behavior**: Document the root scaffold purpose separately from the richer contents of generated template versions.
+
+#### Feature: Brownfield import guidance
+- **Description**: Document how existing repos can adopt selected scaffold assets without full regeneration.
+- **Inputs**: Template assets and copy instructions.
+- **Outputs**: Step-by-step extension-only setup path.
+- **Behavior**: Show how to copy justfile recipes, extensions, `.pi` agents, themes, and env samples into an existing repo.
+
+## Repository Structure
+
+```
+project-root/
+├── README.md                     # Root scaffold product definition and usage
+├── init.sh                       # Project generation entry point
+├── tests/
+│   └── e2e.test.mjs             # Scaffold generation and recipe validation
+├── docs/
+│   └── prd-scaffold-rpg.txt     # Scaffold PRD
+├── v1/                          # Current scaffold template version
+│   ├── VERSION                  # Scaffold version metadata
+│   ├── README.md                # Generated project documentation
+│   ├── package.json             # Generated project package metadata
+│   ├── justfile                 # Generated project launch recipes
+│   ├── extensions/              # Pi extension source files
+│   ├── .pi/                     # Agents, themes, settings, skills
+│   ├── .claude/                 # Prompt and command assets
+│   ├── .github/                 # Generated project CI
+│   └── bolt-ons/                # Optional installable add-ons
+└── package.json                 # Root test harness
+```
+
+## Module Definitions
+
+### Module: Root Scaffold Entry
+- **Maps to capability**: Project Generation
+- **Responsibility**: Accept user input and generate a new project from the current scaffold version.
+- **File structure**:
+  ```
+  init.sh
+  ```
+- **Exports**:
+  - `init.sh <project-name> [target-dir]` - creates a new project from the current scaffold version
+
+### Module: Versioned Template
+- **Maps to capability**: Template Asset Packaging
+- **Responsibility**: Store the complete generated project template for a specific scaffold version.
+- **File structure**:
+  ```
+  v1/
+  ├── VERSION
+  ├── README.md
+  ├── package.json
+  ├── justfile
+  ├── extensions/
+  ├── .pi/
+  ├── .claude/
+  ├── .github/
+  └── bolt-ons/
+  ```
+- **Exports**:
+  - Template files copied into generated projects
+  - Version metadata via `v1/VERSION`
+
+### Module: Generated Project Runtime Surface
+- **Maps to capability**: Template Asset Packaging
+- **Responsibility**: Provide the runnable and configurable assets a generated project needs.
+- **File structure**:
+  ```
+  v1/
+  ├── justfile
+  ├── package.json
+  ├── .env.sample
+  ├── extensions/
+  ├── .pi/
+  └── .claude/
+  ```
+- **Exports**:
+  - Launch recipes for extension stacks
+  - Extension source files
+  - Pi settings, agents, themes, prompts, and environment guidance
+
+### Module: Documentation Surface
+- **Maps to capability**: Validation and Documentation
+- **Responsibility**: Explain the scaffold and generated-project workflows.
+- **File structure**:
+  ```
+  README.md
+  v1/README.md
+  v1/CLAUDE.md
+  docs/prd-scaffold-rpg.txt
+  ```
+- **Exports**:
+  - Root scaffold usage and versioning guidance
+  - Generated project quick-start and brownfield instructions
+
+### Module: Validation Harness
+- **Maps to capability**: Validation and Documentation
+- **Responsibility**: Verify scaffold generation and core runtime wiring.
+- **File structure**:
+  ```
+  package.json
+  tests/
+  └── e2e.test.mjs
+  ```
+- **Exports**:
+  - `npm`/`node` test entry for E2E scaffold verification
+
+## Dependency Chain
+
+### Foundation Layer (Phase 0)
+No dependencies - these are built first.
+
+- **Versioned Template**: Provides the canonical scaffold contents under `v1/`
+- **Documentation Surface**: Provides the root and version-specific description of how the scaffold is meant to be used
+
+### Generation Layer (Phase 1)
+- **Root Scaffold Entry**: Depends on [Versioned Template, Documentation Surface]
+- **Generated Project Runtime Surface**: Depends on [Versioned Template]
+
+### Validation Layer (Phase 2)
+- **Validation Harness**: Depends on [Root Scaffold Entry, Generated Project Runtime Surface, Documentation Surface]
+
+### Evolution Layer (Phase 3)
+- **Future Template Versions**: Depends on [Versioned Template, Validation Harness]
+- **Brownfield Guidance Updates**: Depends on [Generated Project Runtime Surface, Documentation Surface]
+
+## Development Phases
+
+### Phase 0: Scaffold Foundation
+**Goal**: Establish the scaffold as a clearly defined versioned-template product.
+
+**Entry Criteria**: Clean understanding of current repo purpose and current version directory layout.
+
+**Tasks**:
+- [ ] Define the scaffold product boundary in root docs and PRD (depends on: none)
+  - Acceptance criteria: Root documentation and PRD consistently describe the repo as a versioned scaffold for Pi projects.
+  - Test strategy: Manual doc review against current repo behavior.
+
+- [ ] Keep `v1/` as the canonical current template version (depends on: none)
+  - Acceptance criteria: `v1/` contains the full generated project asset set and `VERSION` metadata.
+  - Test strategy: E2E assertions confirm required files are present in generated projects.
+
+**Exit Criteria**: The repo has an explicit scaffold-first product definition and a stable current template directory.
+
+**Delivers**: A clear foundation for evolving the scaffold without redefining it as a different product.
+
+---
+
+### Phase 1: Reliable Project Generation
+**Goal**: Make new-project generation deterministic and self-contained.
+
+**Entry Criteria**: Phase 0 complete.
+
+**Tasks**:
+- [ ] Implement and maintain target directory generation in `init.sh` (depends on: [Define the scaffold product boundary in root docs and PRD, Keep `v1/` as the canonical current template version])
+  - Acceptance criteria: `init.sh` copies the current template, rejects pre-existing targets, and prints next steps.
+  - Test strategy: E2E test project generation in temporary directories.
+
+- [ ] Implement placeholder replacement and slug handling (depends on: [Keep `v1/` as the canonical current template version])
+  - Acceptance criteria: Generated files no longer contain `{{PROJECT_NAME}}` or `{{project-name}}` where replacements are expected.
+  - Test strategy: Assert generated README, CLAUDE, and package metadata contents.
+
+- [ ] Implement post-copy initialization (depends on: [Implement and maintain target directory generation in `init.sh`])
+  - Acceptance criteria: Generated projects are git-initialized and attempt `bun install` only when Bun is available.
+  - Test strategy: Stub local Bun availability in E2E tests and assert expected behavior.
+
+**Exit Criteria**: A new project can be generated from the current scaffold version with correct placeholders and initialization behavior.
+
+**Delivers**: A one-command scaffold bootstrap flow.
+
+---
+
+### Phase 2: Runtime Surface Packaging
+**Goal**: Ensure generated projects contain the assets and recipes users expect to run.
+
+**Entry Criteria**: Phase 1 complete.
+
+**Tasks**:
+- [ ] Package extension stacks and launch recipes (depends on: [Implement and maintain target directory generation in `init.sh`])
+  - Acceptance criteria: Generated projects include `extensions/`, `justfile`, `.env.sample`, and `package.json`.
+  - Test strategy: Assert file presence and recipe invocation wiring.
+
+- [ ] Package hidden team assets (depends on: [Implement and maintain target directory generation in `init.sh`])
+  - Acceptance criteria: Generated projects include `.pi/`, `.claude/`, and `.github/` assets required by docs and recipes.
+  - Test strategy: Assert hidden file/directory presence in generated temp projects.
+
+- [ ] Package optional bolt-ons separately from the base flow (depends on: [Package hidden team assets])
+  - Acceptance criteria: Optional add-ons remain versioned and usable without changing the base generation command.
+  - Test strategy: Validate bolt-on installer behavior with isolated temp directories.
+
+**Exit Criteria**: Generated projects are complete and match the documented scaffold payload.
+
+**Delivers**: A reproducible project template with runtime assets included.
+
+---
+
+### Phase 3: Validation and Safe Evolution
+**Goal**: Catch scaffold regressions and support future versioning without breaking reproducibility.
+
+**Entry Criteria**: Phase 2 complete.
+
+**Tasks**:
+- [ ] Expand and maintain E2E coverage for scaffold generation (depends on: [Package extension stacks and launch recipes, Package hidden team assets])
+  - Acceptance criteria: Core scaffold behaviors are covered by automated tests.
+  - Test strategy: Run Node E2E tests with stubbed toolchains and optional real Pi checks.
+
+- [ ] Validate docs against runtime behavior (depends on: [Expand and maintain E2E coverage for scaffold generation])
+  - Acceptance criteria: Documented commands and model-discovery guidance match generated assets and tests.
+  - Test strategy: Assert doc strings and CI structure expectations in tests where practical.
+
+- [ ] Ship future changes as new version directories (depends on: [Expand and maintain E2E coverage for scaffold generation])
+  - Acceptance criteria: Meaningful scaffold changes create a new version directory instead of mutating old versions in place.
+  - Test strategy: Manual release checklist and version review.
+
+**Exit Criteria**: The scaffold can evolve with confidence while preserving older versions as reproducible artifacts.
+
+**Delivers**: A maintainable versioned scaffold product.
+
+## Test Pyramid
+
+```
+        /\
+       /E2E\       ← 20% (Generation flow, hidden assets, documented recipe wiring)
+      /------\
+     /Integration\ ← 30% (Script behavior with stubbed tools and temp directories)
+    /------------\
+   /  Unit Tests  \ ← 50% (Pure helper logic if shell helpers are later extracted)
+  /----------------\
+```
+
+## Coverage Requirements
+- Line coverage: 80% minimum for Node-based validation helpers and tests
+- Branch coverage: 75% minimum for scaffold generation control flow
+- Function coverage: 85% minimum for testable helper functions introduced later
+- Statement coverage: 80% minimum across scaffold validation logic
+
+## Critical Test Scenarios
+
+### Root Scaffold Entry
+**Happy path**:
+- Generate a new project into an empty temp parent directory.
+- Expected: Target directory is created, git is initialized, placeholders are replaced, and next steps are printed.
+
+**Edge cases**:
+- Project name contains spaces or uppercase characters.
+- Expected: Human-readable placeholders preserve the input name while package slug generation is normalized.
+
+**Error cases**:
+- Target directory already exists.
+- Expected: `init.sh` exits non-zero with a clear error and does not overwrite files.
+
+**Integration points**:
+- `init.sh` + template assets in `v1/`
+- Expected: The generated project is structurally complete.
+
+### Generated Project Runtime Surface
+**Happy path**:
+- Run documented `just` recipes against a stubbed `pi` binary.
+- Expected: Recipes invoke the expected extension stacks.
+
+**Edge cases**:
+- Bun is unavailable on the machine.
+- Expected: Generation completes and prints a manual install instruction instead of failing.
+
+**Error cases**:
+- Hidden required assets are missing from the template.
+- Expected: E2E tests fail with missing file assertions.
+
+**Integration points**:
+- `v1/justfile` + `extensions/` + `.pi/`
+- Expected: Documented runtime surfaces remain aligned.
+
+### Optional Bolt-Ons
+**Happy path**:
+- Install a bolt-on into a temp generated project.
+- Expected: New agent files and team config are added in the expected locations.
+
+**Edge cases**:
+- Target directory is empty but valid.
+- Expected: Installer creates necessary directories before copying assets.
+
+**Error cases**:
+- Required external CLI is unavailable.
+- Expected: Installer exits with a clear prerequisite error.
+
+**Integration points**:
+- Bolt-on installer + generated project layout
+- Expected: Optional add-ons remain compatible with base scaffold structure.
+
+## Test Generation Guidelines
+- Prefer temp-directory E2E tests over mocks when validating scaffold generation behavior.
+- Stub `bun`, `pi`, `gh`, and `curl` on `PATH` instead of hitting real external tools by default.
+- Treat hidden files and directories as first-class assertions; they are part of the product.
+- Validate docs only where they express concrete command strings or structure assumptions.
+- Keep tests focused on scaffold behavior, not on Pi internals or provider network behavior unless explicitly marked optional.
+
+## System Components
+- **Root scaffold interface**: `README.md` and `init.sh` define what the scaffold is and how users generate a project.
+- **Versioned template payload**: `v1/` holds the full generated project contents.
+- **Generated runtime surface**: `v1/justfile`, `v1/extensions/`, `v1/.pi/`, `v1/.claude/`, and `v1/.env.sample` form the runnable template.
+- **Validation harness**: `tests/e2e.test.mjs` and root `package.json` verify scaffold behavior.
+- **Optional expansion layer**: `v1/bolt-ons/` extends the generated project without changing the base generation path.
+
+## Data Models
+- **Scaffold version**: A string stored in `v1/VERSION` that identifies the template release used during generation.
+- **Project name**: Raw user-supplied project name used in markdown/JSON placeholders.
+- **Project slug**: Lowercased, normalized derivative used for `package.json` naming.
+- **Generated project layout**: Directory tree copied from the active version directory into a target path.
+- **Recipe invocation contract**: Expected mapping from `just` recipes to `pi -e extensions/...` command sequences.
+
+## Technology Stack
+- **Shell**: Bash for scaffold generation and bolt-on install scripts.
+- **Node.js**: Test runtime for E2E scaffold verification.
+- **Bun**: Optional package install path for generated projects.
+- **just**: Task runner packaged into generated projects.
+- **Pi CLI**: Runtime expected by generated projects, but not bundled by the scaffold itself.
+
+**Decision: Versioned template directories**
+- **Rationale**: The scaffold's primary product value is reproducible project generation from known template contents.
+- **Trade-offs**: Duplicates files across versions and increases maintenance overhead as versions grow.
+- **Alternatives considered**: In-place mutation of a single template directory, which would reduce duplication but break reproducibility.
+
+**Decision: Shell-based bootstrap script**
+- **Rationale**: `init.sh` is simple to invoke, easy to inspect, and already fits the repo's current workflow.
+- **Trade-offs**: Shell string handling and portability are less ergonomic than a typed CLI implementation.
+- **Alternatives considered**: Rewriting generation as a Node or Bun CLI, which could improve structure but adds implementation overhead not required for the current scope.
+
+**Decision: Node-based E2E validation**
+- **Rationale**: Temp-directory creation, fake binaries, and command assertions are straightforward in Node's standard library.
+- **Trade-offs**: Tests cover behavior at a relatively high level and may not isolate shell helper logic if more helpers are added later.
+- **Alternatives considered**: Shell-based test harnesses, which would be simpler to run but harder to structure and assert precisely.
+
+## Technical Risks
+**Risk**: Hidden template assets drift from documented expectations.
+- **Impact**: High
+- **Likelihood**: Medium
+- **Mitigation**: Keep E2E assertions for hidden directories and generated structure.
+- **Fallback**: Freeze template changes until docs and tests are reconciled.
+
+**Risk**: `init.sh` placeholder replacement behaves unexpectedly on certain file sets.
+- **Impact**: Medium
+- **Likelihood**: Medium
+- **Mitigation**: Test placeholder replacement on representative generated files and edge-case project names.
+- **Fallback**: Narrow replacement scope or move replacement into a dedicated helper.
+
+**Risk**: Scaffold scope drifts into full distro/runtime management work.
+- **Impact**: High
+- **Likelihood**: High
+- **Mitigation**: Keep this PRD scaffold-specific and treat runtime bundling as a separate future initiative.
+- **Fallback**: Split future distro planning into a separate PRD/epic rather than extending this one.
+
+## Dependency Risks
+- The generated project assumes external availability of `pi`, `bun`, and `just`; this is acceptable for the scaffold product but must remain clearly documented.
+- Optional bolt-ons may depend on third-party repos or CLIs, which can fail independently of the base scaffold flow.
+- Real Pi model/provider behavior can change upstream, so scaffold tests should not rely on unstable provider lists except as optional smoke coverage.
+
+## Scope Risks
+- The richness of `v1/` can make the product look like a full packaged runtime when it is actually a project template.
+- Brownfield setup guidance can expand into generalized install automation if not kept separate from the base scaffold flow.
+- Future versioning work can become under-scoped if old-version immutability is not enforced as a rule.
+
+## References
+- `README.md`
+- `init.sh`
+- `tests/e2e.test.mjs`
+- `v1/README.md`
+- `v1/VERSION`
+- `.taskmaster/templates/example_prd_rpg.txt`
+
+## Glossary
+- **Scaffold**: A versioned project template generator, not a bundled runtime distribution.
+- **Template version**: A directory like `v1/` that contains the files copied into generated projects.
+- **Generated project**: The new repo created by running `init.sh`.
+- **Brownfield adoption**: Copying selected scaffold assets into an existing repo instead of generating a new one from scratch.
+- **Bolt-on**: An optional add-on installer packaged alongside the scaffold.
+
+## Open Questions
+- Should root-level docs eventually support selecting a scaffold version other than the current default, or is "latest current version only" enough for now?
+- Should bolt-ons remain inside each version directory or move to a shared cross-version location later?
+- At what threshold of change should maintainers be required to create `v2/` instead of mutating `v1/`?

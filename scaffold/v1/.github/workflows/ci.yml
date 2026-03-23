@@ -78,8 +78,11 @@ jobs:
           echo "Extension files:"
           ls -la extensions/
           echo ""
-          echo "Lib modules:"
-          ls -la lib/
+          echo "Pi assets:"
+          ls -la .pi/
+          echo ""
+          echo "Agent definitions:"
+          ls -la .pi/agents/
 
   sentry:
     runs-on: ubuntu-latest
