@@ -23,6 +23,14 @@ git clone git@github.com:hdiesel323/pi-swarm.git ~/pi-swarm
 ```
 Already cloned? Pull the latest: `cd ~/pi-swarm && git pull`
 
+Start with [docs/WELCOME.md](/Users/admin/pi-swarm/docs/WELCOME.md).
+
+Additional guides:
+- [docs/INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
+- [docs/ONBOARDING_FOR_EMPLOYEES.md](/Users/admin/pi-swarm/docs/ONBOARDING_FOR_EMPLOYEES.md)
+- [docs/EXAMPLE_WORKFLOWS.md](/Users/admin/pi-swarm/docs/EXAMPLE_WORKFLOWS.md)
+- [docs/TROUBLESHOOTING.md](/Users/admin/pi-swarm/docs/TROUBLESHOOTING.md)
+
 ---
 
 ### Step 2: Choose Your Path
@@ -72,6 +80,14 @@ just doctor
 just team-pi
 ```
 
+If you need planning commands such as `/plan`, use a planner stack instead of the default team stack:
+
+```bash
+just launch-planner
+# or
+just launch-all
+```
+
 ---
 
 ## 🏥 Diagnostic Tool (`just doctor`)
@@ -87,6 +103,28 @@ The `team-pi` command launches Pi with the team's standard configuration:
 - **agent-team**: A multi-agent system (Scout, Planner, Builder, Reviewer).
 - **sentry**: Automatically reports errors so we can fix them.
 - **health-check**: Monitors your API connection status.
+
+It does **not** load `project-planner.ts`, so `/plan` is not available in `just team-pi`.
+
+### Launcher Guide
+
+| Command | What it loads | When to use it |
+|---------|----------------|----------------|
+| `just team-pi` | Team dashboard, health-check, sentry | Default daily team stack |
+| `just launch-planner` | Project planner and curator | When you need `/plan` |
+| `just launch-scrum` | Agent team and scrum master | When you need `/status`, `/next`, `/complete` |
+| `just launch-workflow` | Ruflo and git-worktree | Workflow automation |
+| `just launch-all` | Full advanced orchestration stack | Full power-user mode |
+
+If a recipe is missing in an older brownfield project, update the toolkit and rerun:
+
+```bash
+cd ~/pi-swarm
+git pull
+
+cd /path/to/your-project
+~/pi-swarm/init.sh --brownfield .
+```
 
 ---
 

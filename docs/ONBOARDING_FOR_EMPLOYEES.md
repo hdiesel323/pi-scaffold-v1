@@ -4,6 +4,8 @@
 
 Welcome to the **Pi Swarm** ecosystem. This platform is designed to scale your technical capabilities by deploying an autonomous multi-agent swarm across your development lifecycle.
 
+Start with [WELCOME.md](./WELCOME.md) if you want the central guide and docs index.
+
 ## 🚀 The Vision: Corporate-Scale Intelligence
 Pi Swarm isn't just a coding assistant; it's a **56-agent corporate swarm** organized into 7 functional divisions:
 - **Engineering (22)**: The core implementation force.
@@ -35,6 +37,8 @@ Choose the path that fits your current work:
 - **New Project**: `~/pi-swarm/init.sh my-new-swarm`
 - **Existing Project**: `cd /path/to/project && ~/pi-swarm/init.sh --brownfield .`
 
+For updates, reinstall steps, and brownfield refresh guidance, see [INSTALL_AND_UPDATE.md](./INSTALL_AND_UPDATE.md).
+
 ### Step 3: Health Check & Auth
 Verify your environment and connect your provider accounts:
 ```bash
@@ -47,11 +51,12 @@ pi --list-models google
 ```
 
 ### Step 4: Launch the Swarm
-Fire up the full team stack:
+Choose the stack that matches the commands you need:
 ```bash
-just launch-all      # Standard team stack
-# OR
-just launch-scrum    # Scrum-focused task execution
+just team-pi         # Team dashboard
+just launch-planner  # Includes /plan
+just launch-scrum    # Includes /status and /next
+just launch-all      # Full advanced stack
 ```
 
 ## ⌨️ Key Commands
