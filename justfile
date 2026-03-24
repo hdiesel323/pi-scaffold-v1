@@ -107,6 +107,26 @@ ext-health-check:
 ext-sentry-example:
     pi -e extensions/sentry-example.ts -e extensions/minimal.ts
 
+# ─────────────────────────────────────────────
+# Power Suite (Advanced Orchestration)
+# ─────────────────────────────────────────────
+
+# Launch with automated scrum and task tracking
+launch-scrum:
+    pi -e extensions/agent-team.ts -e extensions/scrum-master.ts
+
+# Launch with project planning and upstream curation
+launch-planner:
+    pi -e extensions/project-planner.ts -e extensions/curator.ts
+
+# Launch with workflow engine and git worktree automation
+launch-workflow:
+    pi -e extensions/ruflo.ts -e extensions/git-worktree.ts
+
+# Full Power Suite: Orchestration + Scrum + Planning + Superpowers + Workflows
+launch-all:
+    pi -e extensions/agent-team.ts -e extensions/scrum-master.ts -e extensions/project-planner.ts -e extensions/superpowers.ts -e extensions/ruflo.ts -e extensions/git-worktree.ts
+
 # utils
 
 # ─────────────────────────────────────────────
@@ -153,13 +173,19 @@ open +exts:
 validate-extensions:
     bun test tests/unit/extensions.test.ts
 
+# Synchronize root source files to scaffold/v1/ template (Maintainer only)
+sync-v1:
+    @bash ./scripts/sync-v1.sh
+
 # Finalize a release (vX.Y.Z)
 release version:
     #!/usr/bin/env bash
     echo "{{version}}" > VERSION
+    echo "{{version}}" > scaffold/v1/VERSION
     # Update package.json using perl to avoid complex JSON parsing dependencies
     perl -pi -e 's/"version": ".*?"/"version": "{{version}}"/' package.json
-    git add VERSION package.json CHANGELOG.md
+    perl -pi -e 's/"version": ".*?"/"version": "{{version}}"/' scaffold/v1/package.json
+    git add VERSION package.json scaffold/v1/VERSION scaffold/v1/package.json CHANGELOG.md
     git commit -m "chore(release): v{{version}}"
     git tag -a "v{{version}}" -m "Release v{{version}}"
     echo "✅ Version {{version}} tagged. Run 'git push origin main --tags' to publish."

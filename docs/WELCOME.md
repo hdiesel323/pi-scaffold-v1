@@ -10,14 +10,14 @@ If you are new, start here instead of jumping between files.
 
 If you have never installed Pi Swarm before:
 
-- Read [INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
-- Then follow the quick-start in [README.md](/Users/admin/pi-swarm/README.md)
+- Read [INSTALL_AND_UPDATE.md](docs/INSTALL_AND_UPDATE.md)
+- Then follow the quick-start in [README.md](README.md)
 
 ### 2. Existing Project / Brownfield Setup
 
 If you want to add Pi Swarm to an existing repo:
 
-- Read [INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
+- Read [INSTALL_AND_UPDATE.md](docs/INSTALL_AND_UPDATE.md)
 - Run `~/pi-swarm/init.sh --brownfield .`
 - Then run `just doctor`
 
@@ -25,33 +25,39 @@ If you want to add Pi Swarm to an existing repo:
 
 If this is for a teammate who needs the “what is this and how do I use it?” version:
 
-- Read [ONBOARDING_FOR_EMPLOYEES.md](/Users/admin/pi-swarm/docs/ONBOARDING_FOR_EMPLOYEES.md)
+- Read [ONBOARDING_FOR_EMPLOYEES.md](docs/ONBOARDING_FOR_EMPLOYEES.md)
 
 ## Core Guides
 
 ### Install, Update, Reinstall
 
-- [INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
+- [INSTALL_AND_UPDATE.md](docs/INSTALL_AND_UPDATE.md)
   Covers:
   first install, updating `~/pi-swarm`, clean reinstall, brownfield refresh, missing recipes, and manual extension stacking.
 
 ### Employee Onboarding
 
-- [ONBOARDING_FOR_EMPLOYEES.md](/Users/admin/pi-swarm/docs/ONBOARDING_FOR_EMPLOYEES.md)
+- [ONBOARDING_FOR_EMPLOYEES.md](docs/ONBOARDING_FOR_EMPLOYEES.md)
   Covers:
   high-level team introduction, prerequisites, first launch, and the main launch modes.
 
 ### Troubleshooting
 
-- [TROUBLESHOOTING.md](/Users/admin/pi-swarm/docs/TROUBLESHOOTING.md)
+- [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
   Covers:
   missing tools, auth problems, permission issues, extension import problems, and rerunning brownfield safely.
 
 ### Example Workflows
 
-- [EXAMPLE_WORKFLOWS.md](/Users/admin/pi-swarm/docs/EXAMPLE_WORKFLOWS.md)
+- [EXAMPLE_WORKFLOWS.md](docs/EXAMPLE_WORKFLOWS.md)
   Covers:
-  planner sessions, team dashboard usage, scrum flows, workflow automation, full-stack launch mode, diagnostics, session replay/wrap, and manual extension stacking.
+  the main launchers, the extension recipes, maintainer utilities, session replay/wrap, and manual extension stacking.
+
+### Memory System
+
+- [MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md)
+  Covers:
+  the system-wide and project-local memory cave, the filesystem-first model, and optional Zettelkasten/vector/database backends.
 
 ## Which Launcher Gives Which Commands
 
@@ -153,14 +159,15 @@ Rules:
 
 ## Reference Docs
 
-- [README.md](/Users/admin/pi-swarm/README.md)
-- [INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
-- [ONBOARDING_FOR_EMPLOYEES.md](/Users/admin/pi-swarm/docs/ONBOARDING_FOR_EMPLOYEES.md)
-- [TROUBLESHOOTING.md](/Users/admin/pi-swarm/docs/TROUBLESHOOTING.md)
-- [EXAMPLE_WORKFLOWS.md](/Users/admin/pi-swarm/docs/EXAMPLE_WORKFLOWS.md)
-- [RELEASE_CHECKLIST.md](/Users/admin/pi-swarm/docs/RELEASE_CHECKLIST.md)
-- [TRANSITION.md](/Users/admin/pi-swarm/docs/TRANSITION.md)
-- [ZETTELGHEST.md](/Users/admin/pi-swarm/docs/ZETTELGHEST.md)
+- [README.md](README.md)
+- [INSTALL_AND_UPDATE.md](docs/INSTALL_AND_UPDATE.md)
+- [ONBOARDING_FOR_EMPLOYEES.md](docs/ONBOARDING_FOR_EMPLOYEES.md)
+- [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- [EXAMPLE_WORKFLOWS.md](docs/EXAMPLE_WORKFLOWS.md)
+- [MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md)
+- [RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
+- [TRANSITION.md](docs/TRANSITION.md)
+- [ZETTELKASTEN.md](docs/ZETTELKASTEN.md)
 
 ## Suggested Next Docs to Add
 

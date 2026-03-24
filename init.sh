@@ -148,6 +148,25 @@ if [[ "$BROWNFIELD" == "true" ]]; then
     fi
   done
 
+  if [[ -d "$VERSION_DIR/docs" ]]; then
+    if [[ "$DRY_RUN" == "false" ]]; then
+      mkdir -p "$TARGET_DIR/docs"
+    fi
+    for doc in "TRANSITION.md" "ZETTELKASTEN.md"; do
+      if [[ -f "$VERSION_DIR/docs/$doc" ]]; then
+        if [[ ! -f "$TARGET_DIR/docs/$doc" ]]; then
+          log_action "+ copying docs/$doc"
+          ((FILES_COPIED++))
+          if [[ "$DRY_RUN" == "false" ]]; then
+            cp -L "$VERSION_DIR/docs/$doc" "$TARGET_DIR/docs/$doc"
+          fi
+        else
+          log_action "○ skipping docs/$doc (already exists)"
+        fi
+      fi
+    done
+  fi
+
   if [[ -f "$TARGET_DIR/package.json" ]]; then
     log_action "+ updating package.json (run 'bun install' next)"
     PKG_UPDATED="yes (manual install required)"

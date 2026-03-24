@@ -23,13 +23,14 @@ git clone git@github.com:hdiesel323/pi-swarm.git ~/pi-swarm
 ```
 Already cloned? Pull the latest: `cd ~/pi-swarm && git pull`
 
-Start with [docs/WELCOME.md](/Users/admin/pi-swarm/docs/WELCOME.md).
+Start with [docs/WELCOME.md](docs/WELCOME.md).
 
 Additional guides:
-- [docs/INSTALL_AND_UPDATE.md](/Users/admin/pi-swarm/docs/INSTALL_AND_UPDATE.md)
-- [docs/ONBOARDING_FOR_EMPLOYEES.md](/Users/admin/pi-swarm/docs/ONBOARDING_FOR_EMPLOYEES.md)
-- [docs/EXAMPLE_WORKFLOWS.md](/Users/admin/pi-swarm/docs/EXAMPLE_WORKFLOWS.md)
-- [docs/TROUBLESHOOTING.md](/Users/admin/pi-swarm/docs/TROUBLESHOOTING.md)
+- [docs/INSTALL_AND_UPDATE.md](docs/INSTALL_AND_UPDATE.md)
+- [docs/ONBOARDING_FOR_EMPLOYEES.md](docs/ONBOARDING_FOR_EMPLOYEES.md)
+- [docs/EXAMPLE_WORKFLOWS.md](docs/EXAMPLE_WORKFLOWS.md)
+- [docs/MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md)
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 
 ---
 

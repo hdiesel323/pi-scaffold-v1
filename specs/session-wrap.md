@@ -13,7 +13,7 @@ The Session Wrap system automates the transition between active development and 
 ## 2. Functional Requirements
 - **FR-1: State Consolidation**: Read and update `.pi/project-state.json`.
 - **FR-2: Transition Logging**: Automatically append session summaries to `docs/TRANSITION.md`.
-- **FR-3: Knowledge Refresh**: Update `docs/ZETTELGHEST.md` with current agent counts and extension inventory.
+- **FR-3: Knowledge Refresh**: Update `docs/ZETTELKASTEN.md` with current agent counts and extension inventory.
 - **FR-4: External Persistence**: Sync core documentation to a Google Drive-backed vault.
 - **FR-5: History Archiving**: Create timestamped session logs in the cloud archive.
 - **FR-6: Zettelkasten Indexing**: Trigger the external MCP indexer to update the project's knowledge graph.

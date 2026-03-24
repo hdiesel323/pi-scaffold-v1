@@ -127,9 +127,9 @@ describe("session-wrap extension", () => {
 			writeFileSync(join(tempDir, "extensions", "themeMap.ts"), "export {};\n");
 			writeFileSync(join(tempDir, "docs", "TRANSITION.md"), "# Transition\n");
 			writeFileSync(
-				join(tempDir, "docs", "ZETTELGHEST.md"),
+				join(tempDir, "docs", "ZETTELKASTEN.md"),
 				[
-					"# ZETTELGHEST",
+					"# ZETTELKASTEN",
 					"",
 					"## 👥 Agent Roster (0 Agents)",
 					"",
@@ -163,13 +163,63 @@ describe("session-wrap extension", () => {
 
 			await commandHandler?.("completed release prep", ctx);
 
-			const zettel = readFileSync(join(tempDir, "docs", "ZETTELGHEST.md"), "utf-8");
+			const zettel = readFileSync(join(tempDir, "docs", "ZETTELKASTEN.md"), "utf-8");
 			expect(zettel).toContain("## 👥 Agent Roster (1 Agents)");
 			expect(zettel).toContain("- `minimal`: Compact footer.");
 			expect(zettel).not.toContain("themeMap");
+			expect(readFileSync(join(vaultDir, "ZETTELKASTEN.md"), "utf-8")).toContain("Compact footer.");
 			expect(readFileSync(join(vaultDir, "ZETTELGHEST.md"), "utf-8")).toContain("Compact footer.");
 			expect(notifications.some(([message]) => message.includes("Session Secured"))).toBe(true);
 			expect(statuses.some(([key, value]) => key === "session-wrap" && value === "Session Wrap Complete")).toBe(true);
+		} finally {
+			rmSync(tempDir, { recursive: true, force: true });
+		}
+	});
+
+	it("supports legacy ZETTELGHEST knowledge bases", async () => {
+		let commandHandler: ((args: string, ctx: any) => Promise<void>) | undefined;
+
+		const api: any = {
+			on() {},
+			registerCommand(_name: string, options: { handler: (args: string, ctx: any) => Promise<void> }) {
+				commandHandler = options.handler;
+			},
+		};
+
+		sessionWrap(api);
+
+		const tempDir = mkdtempSync(join(tmpdir(), "pi-session-wrap-legacy-"));
+
+		try {
+			mkdirSync(join(tempDir, ".pi"), { recursive: true });
+			mkdirSync(join(tempDir, "docs"), { recursive: true });
+			writeFileSync(
+				join(tempDir, ".pi", "wrap-config.yaml"),
+				[
+					'external_vault_path: ".pi/sync/vault"',
+					'archive_logs_path: ".pi/sync/archive"',
+					'zettelkasten_mcp_path: ".pi/sync/mcp"',
+				].join("\n"),
+			);
+			writeFileSync(join(tempDir, "docs", "TRANSITION.md"), "# Transition\n");
+			writeFileSync(join(tempDir, "docs", "ZETTELGHEST.md"), "# Legacy\n\n## 🔌 Power Suite Extensions\n");
+
+			const ctx: any = {
+				cwd: tempDir,
+				ui: {
+					notify() {},
+					setStatus() {},
+					setTheme() {
+						return { success: true };
+					},
+					setTitle() {},
+				},
+			};
+
+			await commandHandler?.("legacy sync", ctx);
+
+			expect(readFileSync(join(tempDir, "docs", "ZETTELGHEST.md"), "utf-8")).toContain("## 🔌 Power Suite Extensions");
+			expect(readFileSync(join(tempDir, ".pi", "sync", "vault", "ZETTELKASTEN.md"), "utf-8")).toContain("# Legacy");
 		} finally {
 			rmSync(tempDir, { recursive: true, force: true });
 		}

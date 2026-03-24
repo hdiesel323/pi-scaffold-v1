@@ -1,1 +1,0 @@
-../../../../specs/git-worktree.md

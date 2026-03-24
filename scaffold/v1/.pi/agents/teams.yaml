@@ -1,1 +1,61 @@
-../../../../.pi/agents/teams.yaml
+full:
+  - scout
+  - planner
+  - builder
+  - reviewer
+  - documenter
+  - red-team
+
+plan-build:
+  - planner
+  - builder
+  - reviewer
+
+info:
+  - scout
+  - documenter
+  - reviewer
+
+frontend:
+  - planner
+  - builder
+  - bowser
+
+pi-pi:
+  - ext-expert
+  - theme-expert
+  - skill-expert
+  - config-expert
+  - tui-expert
+  - prompt-expert
+  - agent-expert
+
+product-team:
+  - product-manager
+  - user-researcher
+  - sprint-lead
+  - prioritization-analyst
+
+growth-team:
+  - seo-specialist
+  - ads-optimizer
+  - community-manager
+  - email-marketer
+
+sales-ops:
+  - sales-representative
+  - customer-success-manager
+  - contracts-analyst
+  - procurement-specialist
+
+data-security:
+  - data-scientist
+  - ml-engineer
+  - penetration-tester
+  - incident-responder
+
+design-ux:
+  - ux-designer
+  - ui-architect
+  - brand-specialist
+  - accessibility-auditor

@@ -1,1 +1,22 @@
-../../../../.pi/flows/feature-implementation.yaml
+name: feature-implementation
+description: Standard flow for building and testing a new feature.
+version: 1.0.0
+tasks:
+  - id: research
+    agent: scout
+    prompt: "Research the implementation path for {{goal}}"
+    next: [architect]
+  - id: architect
+    agent: architect
+    prompt: "Draft a TDD based on research: {{last_output}}"
+    gate: user_approval
+    next: [build]
+  - id: build
+    agent: builder
+    prompt: "Implement the TDD in docs/TDD.md"
+    next: [test]
+  - id: test
+    agent: reviewer
+    prompt: "Run tests and verify implementation"
+    condition: "output.success == true"
+    on_fail: build

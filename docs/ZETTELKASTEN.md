@@ -1,6 +1,8 @@
-# ZETTELGHEST: Pi Swarm Knowledge Base
+# ZETTELKASTEN: Pi Swarm Knowledge Base
 
-This document serves as the local "ghost in the machine" knowledge base for Pi Swarm v1.2.1.
+This document is the canonical project knowledge base for Pi Swarm v1.2.1.
+
+It exists so session wrap, handoff, and external knowledge sync all point to one standard note name instead of an internal typo.
 
 ## 🏗 Core Architecture
 Pi Swarm is a layered multi-agent orchestration platform built on top of the Pi Coding Agent.

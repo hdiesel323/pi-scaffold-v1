@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Pi Swarm
+# License: MIT
+# Copyright (c) 2026 Pi Scaffold Maintainers
 #
 # Export the current v1 scaffold template as a standalone starter repo.
 #

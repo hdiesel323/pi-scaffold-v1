@@ -17,6 +17,24 @@ interface WrapConfig {
 	zettelkasten_mcp_path: string;
 }
 
+function resolveConfiguredPath(projectRoot: string, configuredPath: string): string {
+	return path.isAbsolute(configuredPath) ? configuredPath : path.resolve(projectRoot, configuredPath);
+}
+
+function resolveKnowledgeBasePath(projectRoot: string): string {
+	const canonicalPath = path.join(projectRoot, "docs", "ZETTELKASTEN.md");
+	if (fs.existsSync(canonicalPath)) {
+		return canonicalPath;
+	}
+
+	const legacyPath = path.join(projectRoot, "docs", "ZETTELGHEST.md");
+	if (fs.existsSync(legacyPath)) {
+		return legacyPath;
+	}
+
+	throw new Error("docs/ZETTELKASTEN.md not found");
+}
+
 function readWrapConfig(configPath: string): WrapConfig {
 	const raw = fs.readFileSync(configPath, "utf-8");
 	const parsed = yaml.load(raw) as Partial<WrapConfig> | undefined;
@@ -30,7 +48,7 @@ function readWrapConfig(configPath: string): WrapConfig {
 
 function refreshKnowledgeBase(zettelPath: string, agentsCount: number, extensionNames: string[]): void {
 	if (!fs.existsSync(zettelPath)) {
-		throw new Error("docs/ZETTELGHEST.md not found");
+		throw new Error("Knowledge base file not found");
 	}
 
 	const current = fs.readFileSync(zettelPath, "utf-8");
@@ -93,6 +111,9 @@ export default function(api: ExtensionAPI) {
 
 			try {
 				const config = readWrapConfig(wrapConfigPath);
+				const externalVaultPath = resolveConfiguredPath(ctx.cwd, config.external_vault_path);
+				const archiveLogsPath = resolveConfiguredPath(ctx.cwd, config.archive_logs_path);
+				const zettelkastenMcpPath = resolveConfiguredPath(ctx.cwd, config.zettelkasten_mcp_path);
 				ctx.ui.setStatus("session-wrap", "Starting Session Wrap...");
 
 				const transitionPath = path.join(ctx.cwd, "docs/TRANSITION.md");
@@ -101,7 +122,7 @@ export default function(api: ExtensionAPI) {
 				}
 				fs.appendFileSync(transitionPath, `\n\n### Session Wrap: ${timestamp}\n- **Summary**: ${summary}\n`);
 
-				const zettelPath = path.join(ctx.cwd, "docs/ZETTELGHEST.md");
+				const zettelPath = resolveKnowledgeBasePath(ctx.cwd);
 				const agentsDir = path.join(ctx.cwd, ".pi/agents");
 				const extensionDir = path.join(ctx.cwd, "extensions");
 				const agentsCount = fs.existsSync(agentsDir)
@@ -115,26 +136,27 @@ export default function(api: ExtensionAPI) {
 
 				refreshKnowledgeBase(zettelPath, agentsCount, extensionNames);
 
-				if (!fs.existsSync(config.external_vault_path)) {
-					fs.mkdirSync(config.external_vault_path, { recursive: true });
+				if (!fs.existsSync(externalVaultPath)) {
+					fs.mkdirSync(externalVaultPath, { recursive: true });
 				}
-				fs.copyFileSync(transitionPath, path.join(config.external_vault_path, "TRANSITION.md"));
-				fs.copyFileSync(zettelPath, path.join(config.external_vault_path, "ZETTELGHEST.md"));
+				fs.copyFileSync(transitionPath, path.join(externalVaultPath, "TRANSITION.md"));
+				fs.copyFileSync(zettelPath, path.join(externalVaultPath, "ZETTELKASTEN.md"));
+				fs.copyFileSync(zettelPath, path.join(externalVaultPath, "ZETTELGHEST.md"));
 
-				if (!fs.existsSync(config.archive_logs_path)) {
-					fs.mkdirSync(config.archive_logs_path, { recursive: true });
+				if (!fs.existsSync(archiveLogsPath)) {
+					fs.mkdirSync(archiveLogsPath, { recursive: true });
 				}
 				const logName = `session-${timestamp.replace(/[:.]/g, "-")}.md`;
 				const modifiedFiles = execSync("find . -maxdepth 3 -not -path '*/.*' -mtime -1", {
 					cwd: ctx.cwd,
 				}).toString();
 				const logContent = `# Session Log: ${timestamp}\n\n## Summary\n${summary}\n\n## Modified Files (24h)\n\`\`\`\n${modifiedFiles}\n\`\`\``;
-				fs.writeFileSync(path.join(config.archive_logs_path, logName), logContent);
+				fs.writeFileSync(path.join(archiveLogsPath, logName), logContent);
 
 				try {
 					ctx.ui.setStatus("session-wrap", "Indexing Zettelkasten...");
 					execSync(".venv/bin/python -m zettelkasten_mcp.main", {
-						cwd: config.zettelkasten_mcp_path,
+						cwd: zettelkastenMcpPath,
 						stdio: "ignore",
 					});
 				} catch {

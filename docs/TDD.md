@@ -91,7 +91,7 @@ Agents are organized into **Divisions** for structural clarity:
 
 ## 4. Operational Standards
 
-- **Paths**: All internal and external paths must use `/Users/admin/pi-swarm/` as the root.
+- **Paths**: All internal and external paths must use `` as the root.
 - **Versioning**: Adhere to Semantic Versioning (SemVer) for all swarm components.
 - **Testing**: Every extension must pass import validation and basic behavioral checks in CI.
 - **Safety**: `damage-control.ts` must be loaded by default in all production-grade team stacks.

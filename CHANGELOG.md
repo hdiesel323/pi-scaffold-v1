@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Renamed Assets**: Cleaned up all internal references to `pi-vs-cc` in extensions, documentation, and scaffold templates.
-- **Directory Structure**: Moved the project to `/Users/admin/pi-swarm/` to match the new identity.
+- **Directory Structure**: Moved the project to `` to match the new identity.
 - **Documentation**: Archived old comparison files (`COMPARISON.md`, `PI_VS_OPEN_CODE.md`) into `docs/archive/` to focus on the swarm future.
 
 ## [1.1.0] - 2026-03-24

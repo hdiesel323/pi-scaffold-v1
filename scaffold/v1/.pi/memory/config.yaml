@@ -1,0 +1,42 @@
+version: 1
+
+canonical_store:
+  type: files
+  root: ".pi/memory"
+
+knowledge_base:
+  summary_file: "docs/ZETTELKASTEN.md"
+  transition_file: "docs/TRANSITION.md"
+
+zettelkasten_sync:
+  enabled: false
+  mode: export_and_index
+  target_root: ".pi/sync/external-vault"
+  mcp_path: "/absolute/path/to/zettelkasten-mcp"
+
+vector_backend:
+  enabled: false
+  provider: generic
+  api_url: "${VECTOR_API_URL}"
+  api_key_env: "VECTOR_API_KEY"
+  index: "${VECTOR_API_INDEX}"
+  namespace: "${VECTOR_API_NAMESPACE}"
+  embedding_provider: "${MEMORY_EMBEDDING_PROVIDER}"
+  embedding_model: "${MEMORY_EMBEDDING_MODEL}"
+
+database_backend:
+  enabled: false
+  provider: generic
+  api_url: "${MEMORY_DATABASE_URL}"
+  token_env: "MEMORY_DATABASE_TOKEN"
+  schema: "${MEMORY_DATABASE_SCHEMA}"
+  collection: "${MEMORY_DATABASE_COLLECTION}"
+
+filing:
+  inbox_dir: ".pi/memory/inbox"
+  sessions_dir: ".pi/memory/sessions"
+  decisions_dir: ".pi/memory/decisions"
+  entities_dir: ".pi/memory/entities"
+  runbooks_dir: ".pi/memory/runbooks"
+  patterns_dir: ".pi/memory/patterns"
+  archives_dir: ".pi/memory/archives"

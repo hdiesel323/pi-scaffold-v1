@@ -32,9 +32,15 @@ describe("Greenfield init.sh E2E", () => {
       // 1. Verify existence of core assets
       expect(existsSync(targetDir)).toBe(true);
       expect(existsSync(join(targetDir, ".pi/agents/teams.yaml"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi/project-state.json"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi/wrap-config.yaml"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi/memory/config.yaml"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi/memory/index.md"))).toBe(true);
       expect(existsSync(join(targetDir, "extensions/minimal.ts"))).toBe(true);
       expect(existsSync(join(targetDir, "justfile"))).toBe(true);
       expect(existsSync(join(targetDir, "package.json"))).toBe(true);
+      expect(existsSync(join(targetDir, "docs/TRANSITION.md"))).toBe(true);
+      expect(existsSync(join(targetDir, "docs/ZETTELKASTEN.md"))).toBe(true);
       expect(existsSync(join(targetDir, ".git"))).toBe(true);
       expect(statSync(join(targetDir, "doctor.sh")).mode & 0o111).not.toBe(0);
       expect(statSync(join(targetDir, "bin", "team-pi")).mode & 0o111).not.toBe(0);
@@ -50,6 +56,12 @@ describe("Greenfield init.sh E2E", () => {
       const readme = readFileSync(join(targetDir, "README.md"), "utf-8");
       expect(readme).toContain("new-agent");
       expect(readme).not.toContain("{{PROJECT_NAME}}");
+
+      const zettelkastenDoc = readFileSync(join(targetDir, "docs", "ZETTELKASTEN.md"), "utf-8");
+      expect(zettelkastenDoc).toContain("new-agent");
+      const memoryConfig = readFileSync(join(targetDir, ".pi", "memory", "config.yaml"), "utf-8");
+      expect(memoryConfig).toContain("vector_backend:");
+      expect(memoryConfig).toContain("database_backend:");
 
       // 3. Verify doctor.sh passes in the new project
       // Mocking environment for doctor

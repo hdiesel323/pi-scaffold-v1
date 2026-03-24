@@ -68,7 +68,7 @@ just launch-all      # Full advanced stack
 - `/wrap`: Finalize your session, sync knowledge, and archive logs.
 
 ## 🏥 Support
-Stuck? Run `just doctor` first. If issues persist, check the [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
+Stuck? Run `just doctor` first. If issues persist, check the [Troubleshooting Guide](./TROUBLESHOOTING.md).
 
 ---
 *Pi Swarm v1.2.1 | MIT License*

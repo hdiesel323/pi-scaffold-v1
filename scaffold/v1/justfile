@@ -126,3 +126,86 @@ launch-workflow:
 # Full Power Suite: Orchestration + Scrum + Planning + Superpowers + Workflows
 launch-all:
     pi -e extensions/agent-team.ts -e extensions/scrum-master.ts -e extensions/project-planner.ts -e extensions/superpowers.ts -e extensions/ruflo.ts -e extensions/git-worktree.ts
+
+# utils
+
+# ─────────────────────────────────────────────
+# Sentry Commands
+# ─────────────────────────────────────────────
+
+# Test Sentry connection
+sentry-ping:
+    @npx sentry-cli info
+
+# Get current release version
+sentry-version:
+    @npx sentry-cli releases propose-version
+
+# Create new release (for CI)
+sentry-release-create:
+    @npx sentry-cli releases new $$(npx sentry-cli releases propose-version) --ignore-empty
+
+# Upload source maps
+sentry-sourcemaps +files:
+    @npx sentry-cli sourcemaps upload dist {{files}}
+
+# Check for unreleased issues
+sentry-issues:
+    @npx sentry-cli releases needs $$(npx sentry-cli releases propose-version)
+
+# Finalize release
+sentry-release-finalize:
+    @npx sentry-cli releases finalize $$(npx sentry-cli releases propose-version)
+
+# Open pi with one or more stacked extensions in a new terminal: just open minimal tool-counter
+open +exts:
+    #!/usr/bin/env bash
+    args=""
+    for ext in {{exts}}; do
+        args="$args -e extensions/$ext.ts"
+    done
+    cmd="cd '{{justfile_directory()}}' && pi$args"
+    escaped="${cmd//\\/\\\\}"
+    escaped="${escaped//\"/\\\"}"
+    osascript -e "tell application \"Terminal\" to do script \"$escaped\""
+
+# Validate all extensions for basic syntax and dependency correctness
+validate-extensions:
+    bun test tests/unit/extensions.test.ts
+
+# Synchronize root source files to scaffold/v1/ template (Maintainer only)
+sync-v1:
+    @bash ./scripts/sync-v1.sh
+
+# Finalize a release (vX.Y.Z)
+release version:
+    #!/usr/bin/env bash
+    echo "{{version}}" > VERSION
+    echo "{{version}}" > scaffold/v1/VERSION
+    # Update package.json using perl to avoid complex JSON parsing dependencies
+    perl -pi -e 's/"version": ".*?"/"version": "{{version}}"/' package.json
+    perl -pi -e 's/"version": ".*?"/"version": "{{version}}"/' scaffold/v1/package.json
+    git add VERSION package.json scaffold/v1/VERSION scaffold/v1/package.json CHANGELOG.md
+    git commit -m "chore(release): v{{version}}"
+    git tag -a "v{{version}}" -m "Release v{{version}}"
+    echo "✅ Version {{version}} tagged. Run 'git push origin main --tags' to publish."
+
+# OpenEvery extension in its own terminal window
+all:
+    just open pi
+    just open pure-focus
+    just open minimal theme-cycler
+    just open cross-agent minimal
+    just open purpose-gate minimal
+    just open tool-counter
+    just open tool-counter-widget minimal
+    just open subagent-widget pure-focus theme-cycler
+    just open tilldone theme-cycler
+    just open agent-team theme-cycler
+    just open system-select minimal theme-cycler
+    just open damage-control minimal theme-cycler
+    just open agent-chain theme-cycler
+    just open pi-pi theme-cycler
+    just open sentry minimal
+    just open sentry-example minimal
+    just open health-check sentry minimal

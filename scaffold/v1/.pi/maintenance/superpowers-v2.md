@@ -1,1 +1,0 @@
-../../../../specs/superpowers-v2.md

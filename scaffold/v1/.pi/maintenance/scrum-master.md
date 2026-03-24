@@ -1,1 +1,0 @@
-../../../../specs/scrum-master.md

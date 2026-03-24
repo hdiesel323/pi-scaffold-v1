@@ -122,3 +122,53 @@ Rules:
 - Use one `-e` per extension
 - Order matters
 - The default team stack is not the same as the planner stack
+
+## 6. Zettelkasten / Session Wrap Setup
+
+New and brownfield installs now include:
+
+- `.pi/wrap-config.yaml`
+- `docs/TRANSITION.md`
+- `docs/ZETTELKASTEN.md`
+
+To enable `/wrap` with your own Zettelkasten MCP, edit `.pi/wrap-config.yaml`:
+
+```yaml
+external_vault_path: ".pi/sync/external-vault"
+archive_logs_path: ".pi/sync/archive-logs"
+zettelkasten_mcp_path: "/absolute/path/to/zettelkasten-mcp"
+```
+
+Notes:
+
+- `ZETTELKASTEN.md` is the canonical knowledge-base file name.
+- Older projects that still have `docs/ZETTELGHEST.md` are still supported by the wrap extension.
+- Relative paths are resolved from the project root.
+
+## 7. Memory Cave and Backend Stubs
+
+New and brownfield installs now also include a local memory scaffold:
+
+```text
+.pi/memory/
+  README.md
+  config.yaml
+  index.md
+  inbox/
+  sessions/
+  decisions/
+  entities/
+  runbooks/
+  patterns/
+  archives/
+```
+
+Backend stubs live in `.pi/memory/config.yaml` and are disabled by default.
+
+You can point them at:
+
+- your Zettelkasten MCP
+- a vector API
+- a database API
+
+See [MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md) for the full layout.

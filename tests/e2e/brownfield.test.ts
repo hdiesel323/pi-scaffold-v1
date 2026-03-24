@@ -41,9 +41,13 @@ describe("Brownfield init.sh E2E", () => {
 
       // 3. Verify Pi assets were added
       expect(existsSync(join(targetDir, ".pi"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi", "wrap-config.yaml"))).toBe(true);
+      expect(existsSync(join(targetDir, ".pi", "memory", "config.yaml"))).toBe(true);
       expect(existsSync(join(targetDir, "extensions"))).toBe(true);
       expect(existsSync(join(targetDir, "bin", "team-pi"))).toBe(true);
       expect(existsSync(join(targetDir, ".env.sample"))).toBe(true);
+      expect(existsSync(join(targetDir, "docs", "TRANSITION.md"))).toBe(true);
+      expect(existsSync(join(targetDir, "docs", "ZETTELKASTEN.md"))).toBe(true);
 
       // 4. Verify existing files were preserved
       const pkg = JSON.parse(readFileSync(join(targetDir, "package.json"), "utf-8"));
