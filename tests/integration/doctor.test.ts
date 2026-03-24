@@ -43,13 +43,15 @@ describe("doctor.sh integration", () => {
     mkdirSync(binDir);
     const mockTool = (name: string) => {
       const p = join(binDir, name);
-      writeFileSync(p, "#!/bin/sh
-echo mock");
+      writeFileSync(p, `#!/bin/sh
+echo mock`);
       chmodSync(p, 0o755);
     };
     mockTool("pi");
     mockTool("bun");
     mockTool("just");
+    mockTool("gh");
+    mockTool("sqlite3");
 
     // 2. Mock required project directories
     mkdirSync(join(tmp, ".pi"));

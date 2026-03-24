@@ -124,7 +124,7 @@ echo "   Target:   $TARGET_DIR"
 echo ""
 
 if [[ "$BROWNFIELD" == "true" ]]; then
-  for dir in ".pi" ".claude" ".github" "extensions" "bolt-ons" "specs"; do
+  for dir in ".pi" ".claude" ".github" "bin" "extensions" "bolt-ons" "specs"; do
     if [[ -d "$VERSION_DIR/$dir" ]]; then
       log_action "+ merging $dir/..."
       ((DIRS_MERGED++))
@@ -169,7 +169,7 @@ if [[ "$BROWNFIELD" == "true" ]]; then
         {
           echo ""
           echo "# ── Pi Extension Stacks (Added by Scaffold) ───────────────────────"
-          cat "$VERSION_DIR/justfile"
+          tail -n +6 "$VERSION_DIR/justfile"
         } >> "$TARGET_DIR/justfile"
       fi
     fi

@@ -1,5 +1,6 @@
 {
   "name": "{{project-name}}",
+  "version": "1.2.1",
   "private": true,
   "type": "module",
   "description": "Pi Coding Agent extension playground",
@@ -9,6 +10,12 @@
     "check:sentry": "sentry-cli releases propose-version"
   },
   "dependencies": {
+    "@mariozechner/pi-ai": "^0.62.0",
+    "@mariozechner/pi-coding-agent": "^0.62.0",
+    "@mariozechner/pi-tui": "^0.62.0",
+    "@sinclair/typebox": "^0.34.48",
+    "@types/js-yaml": "^4.0.9",
+    "js-yaml": "^4.1.1",
     "yaml": "^2.8.0"
   },
   "devDependencies": {

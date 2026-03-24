@@ -1,6 +1,6 @@
 # ZETTELGHEST: Pi Swarm Knowledge Base
 
-This document serves as the local "ghost in the machine" knowledge base for Pi Swarm v1.2.0.
+This document serves as the local "ghost in the machine" knowledge base for Pi Swarm v1.2.1.
 
 ## 🏗 Core Architecture
 Pi Swarm is a layered multi-agent orchestration platform built on top of the Pi Coding Agent.
@@ -45,4 +45,4 @@ Agents are classified by **Division** with specific metadata (capability scores,
 - `docs/archive/`: Legacy comparison and reference documents.
 
 ---
-*Last Sync: 2026-03-23 | Version: 1.2.0*
+*Last Sync: 2026-03-23 | Version: 1.2.1*

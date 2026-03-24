@@ -53,9 +53,7 @@ The easiest way to connect Pi to your models is via **OAuth**. This opens your b
 
 ```bash
 # Inside Pi, run:
-/login anthropic
-/login google
-/login openai
+/login <provider>
 # etc.
 ```
 
@@ -104,7 +102,7 @@ The `team-pi` command launches Pi with the team's standard configuration:
 
 ## Multi-Model Support
 
-Pi supports **20+ providers**. Connect your accounts via `/login` or add keys to `.env`:
+Pi supports **20+ providers**. Discover available models per provider, then connect the accounts you need:
 
 | Provider | Env Var | Discover Models |
 |----------|---------|-----------------|
@@ -120,13 +118,11 @@ Pi supports **20+ providers**. Connect your accounts via `/login` or add keys to
 ### Switching Models
 
 ```bash
-# At runtime with flag
-pi --model minimax/chatgpt-o3-mini
-pi --model zai/Bests
-pi --model groq/llama-3.3-70b
+# At runtime with a provider/model pair discovered from `pi --list-models`
+pi --model <provider>/<model-id>
 
 # Or use /model command in Pi
-/model groq/llama-3.3-70b
+/model <provider>/<model-id>
 ```
 
 ---

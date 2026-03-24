@@ -10,7 +10,7 @@
  */
 import { describe, it, expect } from "bun:test";
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, mkdtempSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, mkdtempSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -36,10 +36,16 @@ describe("Greenfield init.sh E2E", () => {
       expect(existsSync(join(targetDir, "justfile"))).toBe(true);
       expect(existsSync(join(targetDir, "package.json"))).toBe(true);
       expect(existsSync(join(targetDir, ".git"))).toBe(true);
+      expect(statSync(join(targetDir, "doctor.sh")).mode & 0o111).not.toBe(0);
+      expect(statSync(join(targetDir, "bin", "team-pi")).mode & 0o111).not.toBe(0);
 
       // 2. Verify placeholder replacement
       const pkg = JSON.parse(readFileSync(join(targetDir, "package.json"), "utf-8"));
       expect(pkg.name).toBe("new-agent");
+      expect(pkg.dependencies["@mariozechner/pi-coding-agent"]).toBeDefined();
+      expect(pkg.dependencies["@mariozechner/pi-tui"]).toBeDefined();
+      expect(pkg.dependencies["@sinclair/typebox"]).toBeDefined();
+      expect(pkg.dependencies["js-yaml"]).toBeDefined();
 
       const readme = readFileSync(join(targetDir, "README.md"), "utf-8");
       expect(readme).toContain("new-agent");

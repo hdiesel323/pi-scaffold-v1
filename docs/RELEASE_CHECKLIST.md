@@ -1,35 +1,35 @@
-# Production Release Checklist (v1.0.0)
+# Production Release Checklist (v1.2.1)
 
-This checklist ensures that Pi Scaffold is ready for its production release.
+This checklist ensures that Pi Swarm is ready for its production release.
 
 ## 1. Requirements Validation
-- [ ] **P0: Extension Testing** — `tests/unit/extensions.test.ts` covers all 18 extensions.
-- [ ] **P0: CI Pipeline** — `.github/workflows/ci.yml` is active and passing on Linux/macOS.
-- [ ] **P0: Init Consolidation** — Root `init.sh` is canonical; `scaffold/init.sh` is a wrapper.
-- [ ] **P0: Changelog** — `CHANGELOG.md` reflects all changes since inception.
-- [ ] **P0: Troubleshooting** — `docs/TROUBLESHOOTING.md` created with core entries.
-- [ ] **P1: Dry Run** — `init.sh --dry-run` is implemented and verified.
-- [ ] **P1: Doctor Versions** — `doctor.sh` performs minimum version checks.
-- [ ] **P1: Deduplication** — `scaffold/v1` uses symlinks for shared assets.
+- [x] **P0: Extension Testing** — `tests/unit/extensions.test.ts` covers the shipped extensions and import validation.
+- [x] **P0: CI Pipeline** — `.github/workflows/ci.yml` is active and passing on Linux/macOS.
+- [x] **P0: Init Consolidation** — Root `init.sh` is canonical; `scaffold/init.sh` is a wrapper.
+- [x] **P0: Changelog** — `CHANGELOG.md` reflects release history through 1.2.1.
+- [x] **P0: Troubleshooting** — `docs/TROUBLESHOOTING.md` exists with core entries.
+- [x] **P1: Dry Run** — `init.sh --dry-run` is implemented and verified.
+- [x] **P1: Doctor Versions** — `doctor.sh` performs minimum version checks.
+- [x] **P1: Deduplication** — `scaffold/v1` reuses shared assets via the wrapper structure.
 
 ## 2. Code Quality & Metadata
-- [ ] **Version Alignment** — `VERSION` file, `package.json`, and `doctor.sh` all read `1.0.0`.
+- [x] **Version Alignment** — `VERSION` file, `package.json`, and `doctor.sh` all read `1.2.1`.
 - [ ] **License Header** — All `.ts` and `.sh` files contain the MIT License header.
 - [ ] **Placeholders** — No `{{project-name}}` or similar remains in root production files.
 - [ ] **Dependencies** — `package.json` contains all necessary peer dependencies for extensions.
 
 ## 3. Documentation
-- [ ] **README** — Updated with SSH/HTTPS clone options and brownfield explanation.
-- [ ] **CONTRIBUTING** — Guide created for new extensions and agent personas.
-- [ ] **Troubleshooting** — Linked from main README.
+- [x] **README** — Updated with SSH/HTTPS clone options, brownfield explanation, and current model discovery guidance.
+- [x] **CONTRIBUTING** — Guide created for new extensions and agent personas.
+- [x] **Troubleshooting** — Linked from main README.
 
 ## 4. Verification Gate
-- [ ] `bun test` passes with 100% success rate (50+ tests).
+- [x] `bun test` passes with 100% success rate.
 - [ ] `shellcheck` passes for all scripts.
-- [ ] Manual smoke test: Greenfield `init.sh` on clean directory.
-- [ ] Manual smoke test: Brownfield `init.sh` on existing Node.js project.
-- [ ] Manual smoke test: `just doctor` in a generated project.
+- [x] Manual smoke test: Greenfield `init.sh` on clean directory.
+- [x] Manual smoke test: Brownfield `init.sh` on existing Node.js project.
+- [x] Manual smoke test: `just doctor` in a generated project.
 
 ## 5. Deployment
 - [ ] `main` branch is protected.
-- [ ] Git tag `v1.0.0` is ready to be pushed.
+- [ ] Git tag `v1.2.1` is ready to be pushed.

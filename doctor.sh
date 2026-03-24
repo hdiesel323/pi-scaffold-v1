@@ -11,7 +11,7 @@ set -euo pipefail
 
 # ── Version ────────────────────────────────────────────────────────────────
 
-VERSION="1.2.0"
+VERSION="1.2.1"
 
 # ── Colors ─────────────────────────────────────────────────────────────────
 
@@ -112,7 +112,7 @@ fi
 
 if [[ "$AUTH_FOUND" == "false" ]]; then
   warn "No authentication found."
-  info "  Option 1 (OAuth): Run '/login <provider>' inside Pi (e.g. /login anthropic)"
+  info "  Option 1 (OAuth): Run '/login <provider>' inside Pi"
   info "  Option 2 (API Key): Add keys to .env (see .env.sample)"
 else
   success "Authentication is configured."

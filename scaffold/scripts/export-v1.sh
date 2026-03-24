@@ -38,7 +38,7 @@ PROJECT_NAME="$1"
 TARGET_PARENT="${2:-.}"
 TARGET_DIR="$TARGET_PARENT/$PROJECT_NAME"
 
-"$SCAFFOLD_DIR/init.sh" "$PROJECT_NAME" "$TARGET_PARENT"
+bash "$SCAFFOLD_DIR/init.sh" "$PROJECT_NAME" "$TARGET_PARENT"
 
 echo ""
 echo "Standalone v1 starter repo exported to: $TARGET_DIR"

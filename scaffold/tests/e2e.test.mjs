@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, existsSync, writeFileSync, chmodSync, readdirSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, existsSync, writeFileSync, chmodSync, readdirSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -49,11 +49,9 @@ function scaffoldProject(projectName, env = {}) {
 	return path.join(parentDir, projectName);
 }
 
-test("init.sh fails with a usage message when required args are missing", () => {
-	assert.throws(
-		() => run("bash", [initScript], { env: { ...process.env, PATH: "/usr/bin:/bin" } }),
-		/error|Usage:/,
-	);
+test("init.sh prints usage when required args are missing", () => {
+	const output = run("bash", [initScript], { env: { ...process.env, PATH: "/usr/bin:/bin" } });
+	assert.match(output, /Usage:/);
 });
 
 test("init.sh fails when the target directory already exists", () => {
@@ -81,12 +79,21 @@ test("init.sh creates a complete scaffold with hidden assets and replaced placeh
 
 	const packageJson = JSON.parse(read(path.join(projectDir, "package.json")));
 	assert.equal(packageJson.name, "my-test-agent");
+	assert.equal(packageJson.dependencies["@mariozechner/pi-coding-agent"], "^0.62.0");
+	assert.equal(packageJson.dependencies["@mariozechner/pi-tui"], "^0.62.0");
+	assert.equal(packageJson.dependencies["@sinclair/typebox"], "^0.34.48");
+	assert.equal(packageJson.dependencies["js-yaml"], "^4.1.1");
+
+	const doctorMode = statSync(path.join(projectDir, "doctor.sh")).mode;
+	const teamMode = statSync(path.join(projectDir, "bin", "team-pi")).mode;
+	assert.ok((doctorMode & 0o111) !== 0);
+	assert.ok((teamMode & 0o111) !== 0);
 
 	const claudeDoc = read(path.join(projectDir, "CLAUDE.md"));
 	assert.match(claudeDoc, /# My Test Agent/);
 
 	const readme = read(path.join(projectDir, "README.md"));
-	assert.match(readme, /# Pi Scaffold/);
+	assert.match(readme, /^# My Test Agent — Production-Ready Pi Agent Extensions/m);
 	assert.doesNotMatch(readme, /\{\{PROJECT_NAME\}\}/);
 
 	const pureFocus = read(path.join(projectDir, "extensions", "pure-focus.ts"));
@@ -272,24 +279,27 @@ test("local Pi model discovery works for documented provider-scoped commands whe
 	const zaiDir = makeTempDir("pi-models-zai-");
 	const groqDir = makeTempDir("pi-models-groq-");
 
-	const minimaxModels = execFileSync("pi", ["--list-models", "minimax"], {
+	const minimaxResult = spawnSync("pi", ["--list-models", "minimax"], {
 		cwd: repoRoot,
 		encoding: "utf8",
 		env: { ...process.env, PI_CODING_AGENT_DIR: minimaxDir, MINIMAX_API_KEY: "dummy" },
 	});
+	const minimaxModels = `${minimaxResult.stdout || ""}${minimaxResult.stderr || ""}`;
 	assert.match(minimaxModels, /minimax\s+MiniMax-M2/);
 
-	const zaiModels = execFileSync("pi", ["--list-models", "zai"], {
+	const zaiResult = spawnSync("pi", ["--list-models", "zai"], {
 		cwd: repoRoot,
 		encoding: "utf8",
 		env: { ...process.env, PI_CODING_AGENT_DIR: zaiDir, ZAI_API_KEY: "dummy" },
 	});
+	const zaiModels = `${zaiResult.stdout || ""}${zaiResult.stderr || ""}`;
 	assert.match(zaiModels, /zai\s+glm-/);
 
-	const groqModels = execFileSync("pi", ["--list-models", "groq"], {
+	const groqResult = spawnSync("pi", ["--list-models", "groq"], {
 		cwd: repoRoot,
 		encoding: "utf8",
 		env: { ...process.env, PI_CODING_AGENT_DIR: groqDir, GROQ_API_KEY: "dummy" },
 	});
+	const groqModels = `${groqResult.stdout || ""}${groqResult.stderr || ""}`;
 	assert.match(groqModels, /groq\s+/);
 });

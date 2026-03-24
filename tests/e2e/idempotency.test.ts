@@ -19,8 +19,8 @@ const initScript = join(process.cwd(), "init.sh");
 describe("init.sh Idempotency E2E", () => {
   it("should not append recipes to justfile multiple times", () => {
     const targetDir = mkdtempSync(join(tmpdir(), "pi-idempotency-test-"));
-    writeFileSync(join(targetDir, "justfile"), "default:
-    @echo hello");
+    writeFileSync(join(targetDir, "justfile"), `default:
+    @echo hello`);
 
     try {
       // 1. First run

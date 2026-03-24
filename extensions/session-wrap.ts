@@ -4,108 +4,156 @@
  * Copyright (c) 2026 Pi Swarm Maintainers
  */
 
-import { ExtensionAPI, isToolCallEventType } from "@mariozechner/pi-coding-agent";
-import { Type } from "@sinclair/typebox";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { execSync } from "node:child_process";
 import * as yaml from "js-yaml";
-import { applyExtensionTheme } from "./themeMap.js";
-
-const EXTENSION_NAME = "session-wrap";
+import { applyExtensionDefaults } from "./themeMap.ts";
 
 interface WrapConfig {
-  external_vault_path: string;
-  archive_logs_path: string;
-  zettelkasten_mcp_path: string;
+	external_vault_path: string;
+	archive_logs_path: string;
+	zettelkasten_mcp_path: string;
+}
+
+function readWrapConfig(configPath: string): WrapConfig {
+	const raw = fs.readFileSync(configPath, "utf-8");
+	const parsed = yaml.load(raw) as Partial<WrapConfig> | undefined;
+
+	if (!parsed?.external_vault_path || !parsed?.archive_logs_path || !parsed?.zettelkasten_mcp_path) {
+		throw new Error("Invalid .pi/wrap-config.yaml: missing required paths");
+	}
+
+	return parsed as WrapConfig;
+}
+
+function refreshKnowledgeBase(zettelPath: string, agentsCount: number, extensionNames: string[]): void {
+	if (!fs.existsSync(zettelPath)) {
+		throw new Error("docs/ZETTELGHEST.md not found");
+	}
+
+	const current = fs.readFileSync(zettelPath, "utf-8");
+	const withUpdatedCount = current
+		.replace(/\(\d+\s+Agents\)/, `(${agentsCount} Agents)`)
+		.replace(/Agents \(\d+\)/, `Agents (${agentsCount})`);
+	const sectionMatch = withUpdatedCount.match(
+		/(## 🔌 Power Suite Extensions\s*\n)([\s\S]*?)(\n## |\n---|\s*$)/,
+	);
+
+	if (!sectionMatch || extensionNames.length === 0) {
+		fs.writeFileSync(zettelPath, withUpdatedCount);
+		return;
+	}
+
+	const [, heading, existingSection, suffix] = sectionMatch;
+	const existingDescriptions = new Map<string, string>();
+	for (const line of existingSection.split("\n")) {
+		const match = line.match(/^- `([^`]+)`(?::\s*(.*))?$/);
+		if (match?.[1]) {
+			existingDescriptions.set(match[1], match[2] ?? "");
+		}
+	}
+
+	const extensionSection = extensionNames
+		.map((name) => {
+			const description = existingDescriptions.get(name);
+			return description ? `- \`${name}\`: ${description}` : `- \`${name}\``;
+		})
+		.join("\n");
+	const updated = withUpdatedCount.replace(
+		/(## 🔌 Power Suite Extensions\s*\n)([\s\S]*?)(\n## |\n---|\s*$)/,
+		`${heading}${extensionSection}\n\n${suffix}`,
+	);
+
+	fs.writeFileSync(zettelPath, updated);
 }
 
 export default function(api: ExtensionAPI) {
-  const theme = applyExtensionTheme(api, EXTENSION_NAME);
+	api.on("session_start", async (_event, ctx) => {
+		applyExtensionDefaults(import.meta.url, ctx);
+	});
 
-  api.registerCommand({
-    name: "wrap",
-    description: "Automate project closure and knowledge synchronization.",
-    parameters: Type.Object({
-      summary: Type.String({ description: "High-density summary of the session work." }),
-    }),
-    handler: async (args) => {
-      const { summary } = args;
-      const timestamp = new Date().toISOString();
-      const wrapConfigPath = path.join(process.cwd(), ".pi/wrap-config.yaml");
+	api.registerCommand("wrap", {
+		description: "Automate project closure and knowledge synchronization.",
+		handler: async (args, ctx) => {
+			const summary = args.trim();
+			if (!summary) {
+				ctx.ui.notify("Usage: /wrap <summary>", "warning");
+				return;
+			}
 
-      if (!fs.existsSync(wrapConfigPath)) {
-        api.notify("error", "Session Wrap configuration not found at .pi/wrap-config.yaml");
-        return;
-      }
+			const timestamp = new Date().toISOString();
+			const wrapConfigPath = path.join(ctx.cwd, ".pi/wrap-config.yaml");
 
-      const config = yaml.load(fs.readFileSync(wrapConfigPath, "utf-8")) as WrapConfig;
+			if (!fs.existsSync(wrapConfigPath)) {
+				ctx.ui.notify("Session Wrap configuration not found at .pi/wrap-config.yaml", "error");
+				return;
+			}
 
-      try {
-        api.setStatus("info", "Starting Session Wrap...");
+			try {
+				const config = readWrapConfig(wrapConfigPath);
+				ctx.ui.setStatus("session-wrap", "Starting Session Wrap...");
 
-        // 1. Internal Sync: TRANSITION.md
-        const transitionPath = path.join(process.cwd(), "docs/TRANSITION.md");
-        const transitionEntry = `\n\n### Session Wrap: ${timestamp}\n- **Summary**: ${summary}\n`;
-        fs.appendFileSync(transitionPath, transitionEntry);
+				const transitionPath = path.join(ctx.cwd, "docs/TRANSITION.md");
+				if (!fs.existsSync(transitionPath)) {
+					throw new Error("docs/TRANSITION.md not found");
+				}
+				fs.appendFileSync(transitionPath, `\n\n### Session Wrap: ${timestamp}\n- **Summary**: ${summary}\n`);
 
-        // 2. Internal Sync: ZETTELGHEST.md
-        const zettelPath = path.join(process.cwd(), "docs/ZETTELGHEST.md");
-        const agentsCount = fs.readdirSync(path.join(process.cwd(), ".pi/agents"), { recursive: true })
-          .filter(f => f.endsWith(".md")).length;
-        const extensions = fs.readdirSync(path.join(process.cwd(), "extensions"))
-          .filter(f => f.endsWith(".ts"));
-        
-        let zettelContent = fs.readFileSync(zettelPath, "utf-8");
-        // Simple regex update for agent count and extension list
-        zettelContent = zettelContent.replace(/Agents \(\d+\)/, `Agents (${agentsCount})`);
-        // Find the Extensions section and replace its list
-        const extList = extensions.map(e => `- \`${e}\``).join("\n");
-        const extHeader = "## 🔌 Power Suite Extensions";
-        const nextHeaderIdx = zettelContent.indexOf("##", zettelContent.indexOf(extHeader) + extHeader.length);
-        const prefix = zettelContent.substring(0, zettelContent.indexOf(extHeader) + extHeader.length);
-        const suffix = nextHeaderIdx !== -1 ? zettelContent.substring(nextHeaderIdx) : "";
-        zettelContent = `${prefix}\n${extList}\n\n${suffix}`;
-        fs.writeFileSync(zettelPath, zettelContent);
+				const zettelPath = path.join(ctx.cwd, "docs/ZETTELGHEST.md");
+				const agentsDir = path.join(ctx.cwd, ".pi/agents");
+				const extensionDir = path.join(ctx.cwd, "extensions");
+				const agentsCount = fs.existsSync(agentsDir)
+					? fs.readdirSync(agentsDir, { recursive: true }).filter((file) => String(file).endsWith(".md")).length
+					: 0;
+				const extensionNames = fs.existsSync(extensionDir)
+					? fs.readdirSync(extensionDir).filter(
+						(file) => String(file).endsWith(".ts") && String(file) !== "themeMap.ts",
+					).map((file) => path.basename(String(file), ".ts")).sort()
+					: [];
 
-        // 3. External Vault Sync
-        if (!fs.existsSync(config.external_vault_path)) {
-          fs.mkdirSync(config.external_vault_path, { recursive: true });
-        }
-        fs.copyFileSync(transitionPath, path.join(config.external_vault_path, "TRANSITION.md"));
-        fs.copyFileSync(zettelPath, path.join(config.external_vault_path, "ZETTELGHEST.md"));
+				refreshKnowledgeBase(zettelPath, agentsCount, extensionNames);
 
-        // 4. Archive Log
-        if (!fs.existsSync(config.archive_logs_path)) {
-          fs.mkdirSync(config.archive_logs_path, { recursive: true });
-        }
-        const logName = `session-${timestamp.replace(/[:.]/g, "-")}.md`;
-        const modifiedFiles = execSync("find . -maxdepth 3 -not -path '*/.*' -mtime -1").toString();
-        const logContent = `# Session Log: ${timestamp}\n\n## Summary\n${summary}\n\n## Modified Files (24h)\n\`\`\`\n${modifiedFiles}\n\`\`\``;
-        fs.writeFileSync(path.join(config.archive_logs_path, logName), logContent);
+				if (!fs.existsSync(config.external_vault_path)) {
+					fs.mkdirSync(config.external_vault_path, { recursive: true });
+				}
+				fs.copyFileSync(transitionPath, path.join(config.external_vault_path, "TRANSITION.md"));
+				fs.copyFileSync(zettelPath, path.join(config.external_vault_path, "ZETTELGHEST.md"));
 
-        // 5. Zettelkasten MCP Indexing
-        try {
-          api.setStatus("info", "Indexing Zettelkasten...");
-          execSync(`cd ${config.zettelkasten_mcp_path} && .venv/bin/python -m zettelkasten_mcp.main`, { stdio: "ignore" });
-        } catch (e) {
-          api.notify("warn", "Zettelkasten MCP indexing failed, but session wrap continued.");
-        }
+				if (!fs.existsSync(config.archive_logs_path)) {
+					fs.mkdirSync(config.archive_logs_path, { recursive: true });
+				}
+				const logName = `session-${timestamp.replace(/[:.]/g, "-")}.md`;
+				const modifiedFiles = execSync("find . -maxdepth 3 -not -path '*/.*' -mtime -1", {
+					cwd: ctx.cwd,
+				}).toString();
+				const logContent = `# Session Log: ${timestamp}\n\n## Summary\n${summary}\n\n## Modified Files (24h)\n\`\`\`\n${modifiedFiles}\n\`\`\``;
+				fs.writeFileSync(path.join(config.archive_logs_path, logName), logContent);
 
-        // 6. Unified Memory Sync (Beads)
-        try {
-          execSync("bd sync", { stdio: "ignore" });
-        } catch (e) {
-          // Ignore if bd command doesn't exist
-        }
+				try {
+					ctx.ui.setStatus("session-wrap", "Indexing Zettelkasten...");
+					execSync(".venv/bin/python -m zettelkasten_mcp.main", {
+						cwd: config.zettelkasten_mcp_path,
+						stdio: "ignore",
+					});
+				} catch {
+					ctx.ui.notify("Zettelkasten MCP indexing failed, but session wrap continued.", "warning");
+				}
 
-        api.notify("success", "Session Secured: Internal, External, and Zettelkasten systems synced.");
-        api.setStatus("success", "Session Wrap Complete");
+				try {
+					execSync("bd sync", { cwd: ctx.cwd, stdio: "ignore" });
+				} catch {
+					// Ignore if bd command doesn't exist.
+				}
 
-      } catch (error: any) {
-        api.notify("error", `Session Wrap failed: ${error.message}`);
-        api.setStatus("error", "Session Wrap Failed");
-      }
-    },
-  });
+				ctx.ui.notify("Session Secured: Internal, External, and Zettelkasten systems synced.", "info");
+				ctx.ui.setStatus("session-wrap", "Session Wrap Complete");
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				ctx.ui.notify(`Session Wrap failed: ${message}`, "error");
+				ctx.ui.setStatus("session-wrap", "Session Wrap Failed");
+			}
+		},
+	});
 }

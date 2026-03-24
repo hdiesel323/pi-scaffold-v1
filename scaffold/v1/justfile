@@ -9,11 +9,11 @@ default:
 
 # Run diagnostic check
 doctor:
-    @./doctor.sh
+    @bash ./doctor.sh
 
 # Launch the official team stack
 team-pi:
-    @./bin/team-pi
+    @bash ./bin/team-pi
 
 # ─────────────────────────────────────────────
 # Groups

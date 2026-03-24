@@ -22,10 +22,7 @@ describe("Agent Validation", () => {
     it(`should be a valid agent: ${file}`, () => {
       const raw = readFileSync(join(agentsDir, file), "utf-8");
       // Check for frontmatter
-      const match = raw.match(/^---
-([\s\S]*?)
----
-([\s\S]*)$/);
+      const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
       expect(match).not.toBeNull();
       
       const frontmatter = parseYaml(match![1]);
@@ -58,10 +55,7 @@ describe("Agent Validation", () => {
     for (const file of expertFiles) {
       it(`pi-pi expert should be valid: ${file}`, () => {
         const raw = readFileSync(join(piPiDir, file), "utf-8");
-        const match = raw.match(/^---
-([\s\S]*?)
----
-([\s\S]*)$/);
+        const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
         expect(match).not.toBeNull();
         
         const frontmatter = parseYaml(match![1]);
