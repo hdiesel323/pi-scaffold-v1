@@ -103,7 +103,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     name: "generate_project_plan",
-    description: "Generates professional PRD, TDD, and ROADMAP files using the v2 pipeline.",
+    description: "Generates FRS (Functional Requirements Spec) and SDD (System Design Document) using the v2 pipeline.",
     parameters: Type.Object({
       goal: Type.String({ description: "The high-level goal of the project" }),
       context: Type.Optional(Type.String({ description: "Gathered context" })),
@@ -119,11 +119,11 @@ export default function (pi: ExtensionAPI) {
       if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
       try {
-        const prd = await dispatchAgent("architect", `Goal: ${goal}. Context: ${context}. Instruction: Write PRD.md content.`, ctx);
-        fs.writeFileSync(path.join(targetDir, "PRD.md"), prd);
+        const frs = await dispatchAgent("architect", `Goal: ${goal}. Context: ${context}. Instruction: Write FRS.md content.`, ctx);
+        fs.writeFileSync(path.join(targetDir, "FRS.md"), frs);
 
-        const tdd = await dispatchAgent("architect", `Goal: ${goal}. PRD: ${prd}. Instruction: Write TDD.md.`, ctx);
-        fs.writeFileSync(path.join(targetDir, "TDD.md"), tdd);
+        const sdd = await dispatchAgent("architect", `Goal: ${goal}. FRS: ${frs}. Instruction: Write SDD.md.`, ctx);
+        fs.writeFileSync(path.join(targetDir, "SDD.md"), sdd);
 
         return { content: [{ type: "text", text: "✅ Project plan generated using v2 Architect." }] };
       } catch (err: any) {

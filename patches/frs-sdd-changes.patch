@@ -1,0 +1,145 @@
+diff --git a/.pi/agents/architect.md b/.pi/agents/architect.md
+index a171722..f96c5c7 100644
+--- a/.pi/agents/architect.md
++++ b/.pi/agents/architect.md
+@@ -4,13 +4,32 @@ division: Eng
+ description: Expert in First-Principles Thinking, system design, and technical synthesis.
+ tools: read,write,edit,ls,grep,find
+ ---
+-You are the Lead Project Architect. You use **First-Principles Thinking** to deconstruct complex goals into their most fundamental truths.
+ 
+-When designing a system:
+-1. **Deconstruct**: Break the goal into its atomic components.
+-2. **Reason from CoT**: Use Chain-of-Thought reasoning to explore implementation paths.
+-3. **Question Assumptions**: Identify and challenge legacy patterns or unnecessary complexity.
+-4. **Synthesize**: Combine requirements and expert panel feedback into a cohesive technical truth (TDD).
++You are the Lead Project Architect. You produce two documents for every project:
+ 
+-Your output must be structured, logical, and prioritize "just enough" documentation to unblock builders.
++## FRS - Functional Requirements Spec
++**User-facing desired state. No technical details. No fluff.**
++
++Write this from the user's perspective. Describe WHAT the system must do, not HOW.
++
++Structure:
++- **Overview**: One paragraph describing what this is
++- **Users**: Who uses it and their goals
++- **Requirements**: Numbered list of functional requirements
++- **Out of Scope**: What this explicitly does NOT cover
++- **Edge Cases**: Key scenarios to handle
++
++**DO NOT include**: Success metrics, goals, roadmap, implementation notes, technical architecture.
++
++## SDD - System Design Document  
++**Technical implementation details only.**
++
++Structure:
++- **Architecture**: High-level component diagram
++- **Data Model**: Key entities and relationships
++- **API Surface**: Endpoints and contracts
++- **Security**: Auth, data handling, potential risks
++- **Implementation Phases**: Numbered steps for building
++
++Write both documents. Be concise. Prefer lists over paragraphs.
+ version: 1.0.0
+diff --git a/extensions/project-planner.ts b/extensions/project-planner.ts
+index 8b46c13..1dd137a 100644
+--- a/extensions/project-planner.ts
++++ b/extensions/project-planner.ts
+@@ -103,7 +103,7 @@ export default function (pi: ExtensionAPI) {
+ 
+   pi.registerTool({
+     name: "generate_project_plan",
+-    description: "Generates professional PRD, TDD, and ROADMAP files using the v2 pipeline.",
++    description: "Generates FRS (Functional Requirements Spec) and SDD (System Design Document) using the v2 pipeline.",
+     parameters: Type.Object({
+       goal: Type.String({ description: "The high-level goal of the project" }),
+       context: Type.Optional(Type.String({ description: "Gathered context" })),
+@@ -119,11 +119,11 @@ export default function (pi: ExtensionAPI) {
+       if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+ 
+       try {
+-        const prd = await dispatchAgent("architect", `Goal: ${goal}. Context: ${context}. Instruction: Write PRD.md content.`, ctx);
+-        fs.writeFileSync(path.join(targetDir, "PRD.md"), prd);
++        const frs = await dispatchAgent("architect", `Goal: ${goal}. Context: ${context}. Instruction: Write FRS.md content.`, ctx);
++        fs.writeFileSync(path.join(targetDir, "FRS.md"), frs);
+ 
+-        const tdd = await dispatchAgent("architect", `Goal: ${goal}. PRD: ${prd}. Instruction: Write TDD.md.`, ctx);
+-        fs.writeFileSync(path.join(targetDir, "TDD.md"), tdd);
++        const sdd = await dispatchAgent("architect", `Goal: ${goal}. FRS: ${frs}. Instruction: Write SDD.md.`, ctx);
++        fs.writeFileSync(path.join(targetDir, "SDD.md"), sdd);
+ 
+         return { content: [{ type: "text", text: "✅ Project plan generated using v2 Architect." }] };
+       } catch (err: any) {
+diff --git a/specs/project-planner-v2.md b/specs/project-planner-v2.md
+index 9f81661..1cc5530 100644
+--- a/specs/project-planner-v2.md
++++ b/specs/project-planner-v2.md
+@@ -7,14 +7,14 @@ The Project Planner v2 upgrade transforms the simple architect interview into a
+ The upgrade introduces a stateful orchestration layer that moves through distinct phases:
+ 
+ 1. **Scouting**: Analyze existing codebase (if any) to understand technical stack and patterns.
+-2. **Drafting PRD**: The Architect generates the initial Product Requirements Document.
+-3. **Review PRD**: The user reviews and approves the PRD.
++2. **Drafting FRS**: The Architect generates the initial Functional Requirements Spec.
++3. **Review FRS**: The user reviews and approves the FRS.
+ 4. **Expert Panel (New)**: Parallel review by specialized agents:
+     - **Frontend Expert**: UI/UX, accessibility, state management.
+     - **Backend Expert**: Scalability, API design, database schemas.
+     - **Security Expert**: Auth, data leakage, injection risks.
+-5. **Architect Synthesis**: Architect incorporates expert feedback into a final TDD.
+-6. **Finalization**: Generate PRD, TDD, and ROADMAP.
++5. **Architect Synthesis**: Architect incorporates expert feedback into a final SDD.
++6. **Finalization**: Generate FRS and SDD.
+ 
+ ## New Agents
+ 
+@@ -22,10 +22,15 @@ The upgrade introduces a stateful orchestration layer that moves through distinc
+ - `backend-expert`: Focuses on "how it scales and stores".
+ - `security-expert`: Focuses on "how it stays safe".
+ 
++## Deliverables
++
++- `FRS.md`: Functional Requirements Spec - user-facing desired state, no technical details.
++- `SDD.md`: System Design Document - technical implementation details only.
++
+ ## State Machine
+ 
+ ```typescript
+-type PlannerState = 
++type PlannerPhase = 
+   | 'idle'
+   | 'scouting'
+   | 'interviewing'
+diff --git a/specs/project-planner.md b/specs/project-planner.md
+index 73e188d..daadf21 100644
+--- a/specs/project-planner.md
++++ b/specs/project-planner.md
+@@ -1,11 +1,11 @@
+ # Project Planner System Specification
+ 
+-The Project Planner system is designed to automate the initial phase of software development by generating professional-grade product and technical documentation from a high-level goal.
++The Project Planner system is designed to automate the initial phase of software development by generating professional-grade functional and technical documentation from a high-level goal.
+ 
+ ## Components
+ 
+ 1. **Architect Agent**: A specialized persona focused on requirements gathering and technical architecture.
+-2. **Project Templates**: Standardized structures for PRDs, TDDs, and Roadmaps.
++2. **Project Templates**: Standardized structures for FRS and SDD.
+ 3. **Planner Extension**: Orchestrates the interaction between the user, the Architect agent, and the filesystem.
+ 
+ ## Workflow
+@@ -13,10 +13,9 @@ The Project Planner system is designed to automate the initial phase of software
+ 1. User initiates planning via `/plan <goal>`.
+ 2. Architect agent conducts a requirements interview.
+ 3. Once satisfied, the `generate_project_plan` tool is invoked.
+-4. The system produces `docs/PRD.md`, `docs/TDD.md`, and `ROADMAP.md`.
++4. The system produces `docs/FRS.md` and `docs/SDD.md`.
+ 
+ ## Deliverables
+ 
+-- `PRD.md`: Vision, target users, user stories, and functional/non-functional requirements.
+-- `TDD.md`: Architecture overview, component map, testing strategy, and security considerations.
+-- `ROADMAP.md`: Phase-based implementation plan.
++- `FRS.md`: Functional Requirements Spec - user-facing desired state, no technical details.
++- `SDD.md`: System Design Document - technical implementation details only.
