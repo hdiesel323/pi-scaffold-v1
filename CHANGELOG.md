@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed numeric ANSI color values in `midnight-ocean.json` theme to ensure valid hex string compatibility.
-- Fixed `{{PROJECT_NAME}}` placeholder in scaffold templates to ensure correct substitution.
+- Fixed `pi-swarm` placeholder in scaffold templates to ensure correct substitution.
 - Improved `init.sh` idempotency by preventing duplicate `justfile` appends in brownfield mode.
 
 ### Removed

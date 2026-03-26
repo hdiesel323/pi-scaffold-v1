@@ -1,6 +1,6 @@
 # ZETTELKASTEN: Pi Swarm Knowledge Base
 
-This document is the canonical project knowledge base for Pi Swarm v1.2.1.
+This document is the canonical project knowledge base for Pi Swarm v1.3.0 planning.
 
 It exists so session wrap, handoff, and external knowledge sync all point to one standard note name instead of an internal typo.
 
@@ -46,5 +46,11 @@ Agents are classified by **Division** with specific metadata (capability scores,
 - `specs/`: Technical blueprints for Power Suite components.
 - `docs/archive/`: Legacy comparison and reference documents.
 
+## 🎯 Active Focus (v1.3.0)
+- **Extension Generator**: `just new-extension <name>` to reduce extension setup friction.
+- **Cross-Agent Shared Memory**: Filesystem-first shared context across parallel Git worktrees.
+- **Filesystem-First Intelligence**: Durable repo memory remains canonical; vector/database backends are optional accelerators.
+- **Developer Velocity**: Reduce launch and onboarding cognitive load without expanding mandatory infrastructure.
+
 ---
-*Last Sync: 2026-03-23 | Version: 1.2.1*
+*Last Sync: 2026-03-23 | Version: 1.3.0 planning*

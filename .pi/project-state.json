@@ -1,8 +1,8 @@
 {
   "projectName": "Pi Swarm",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "status": "active",
-  "currentTaskId": null,
+  "currentTaskId": "v1.3.0-sprint-1",
   "tasks": [
     {
       "id": "v1.0.0-foundation",
@@ -23,14 +23,38 @@
       "priority": "P0"
     },
     {
-      "id": "extension-generator",
-      "title": "P2: Interactive Extension Generator",
-      "status": "todo",
-      "priority": "P2"
+      "id": "v1.2.1-team-rollout",
+      "title": "Phase 4: Team rollout stabilization and install/docs hardening",
+      "status": "done",
+      "priority": "P0"
     },
     {
-      "id": "bolt-on-marketplace",
-      "title": "P2: Bolt-on Marketplace CLI",
+      "id": "v1.3.0-swarm-intelligence",
+      "title": "Phase 5: Swarm Intelligence and Optimization",
+      "status": "in_progress",
+      "priority": "P0"
+    },
+    {
+      "id": "v1.3.0-extension-generator",
+      "title": "P0: Extension Generator via just new-extension",
+      "status": "todo",
+      "priority": "P0"
+    },
+    {
+      "id": "v1.3.0-cross-agent-memory",
+      "title": "P0: Filesystem-first cross-agent shared memory",
+      "status": "todo",
+      "priority": "P0"
+    },
+    {
+      "id": "v1.3.0-bolt-on-marketplace",
+      "title": "P1: Bolt-on Marketplace",
+      "status": "todo",
+      "priority": "P1"
+    },
+    {
+      "id": "v1.3.0-tui-dashboards",
+      "title": "P2: TUI Activity Dashboards",
       "status": "todo",
       "priority": "P2"
     }

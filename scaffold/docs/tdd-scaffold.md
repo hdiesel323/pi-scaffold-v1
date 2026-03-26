@@ -176,12 +176,12 @@ Compatibility rule:
 #### Template placeholder contract
 Current placeholders:
 
-- `{{PROJECT_NAME}}`
+- `pi-swarm`
 - `{{project-name}}`
 
 Contract:
 
-- `{{PROJECT_NAME}}` is for human-readable display values
+- `pi-swarm` is for human-readable display values
 - `{{project-name}}` is for slug-style package naming
 - replacements are literal, not schema-aware
 

@@ -76,5 +76,5 @@ When the scaffold evolves in a meaningful way:
 
 ## Placeholder Tokens
 
-- `{{PROJECT_NAME}}` — human-readable project name
+- `pi-swarm` — human-readable project name
 - `{{project-name}}` — slug used in `package.json`

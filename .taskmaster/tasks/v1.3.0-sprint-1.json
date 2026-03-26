@@ -1,0 +1,62 @@
+{
+  "version": "1.3.0",
+  "sprint": "sprint-1",
+  "status": "active",
+  "goal": "Automate extension creation and establish filesystem-first shared memory across parallel worktrees.",
+  "tasks": [
+    {
+      "id": "v1.3.0-01",
+      "title": "Extension Generator command",
+      "priority": "P0",
+      "status": "todo",
+      "estimate_hours": 6,
+      "description": "Add just new-extension <name> to scaffold a valid extension, spec, and unit test.",
+      "acceptance_criteria": [
+        "Command validates name input",
+        "Creates extension source file",
+        "Creates spec file",
+        "Creates unit test stub",
+        "Generated extension imports cleanly"
+      ]
+    },
+    {
+      "id": "v1.3.0-02",
+      "title": "Shared memory filesystem core",
+      "priority": "P0",
+      "status": "todo",
+      "estimate_hours": 8,
+      "description": "Implement shared working memory using a path derived from Git common dir so multiple worktrees can share context.",
+      "acceptance_criteria": [
+        "Two worktrees can read and write shared memory",
+        "Local file writes are canonical",
+        "Shared memory works without vector or database backends"
+      ]
+    },
+    {
+      "id": "v1.3.0-03",
+      "title": "Librarian extension and promotion flow",
+      "priority": "P0",
+      "status": "todo",
+      "estimate_hours": 6,
+      "description": "Add librarian commands for memory_set, memory_get, memory_search, and promotion into durable project memory.",
+      "acceptance_criteria": [
+        "Shared entries can be promoted into .pi/memory",
+        "Promotion can update docs/ZETTELKASTEN.md",
+        "Sync status is recorded without making external backends mandatory"
+      ]
+    },
+    {
+      "id": "v1.3.0-04",
+      "title": "Docs, doctor, and validation",
+      "priority": "P1",
+      "status": "todo",
+      "estimate_hours": 4,
+      "description": "Update docs and doctor checks to reflect extension generation and shared-memory behavior.",
+      "acceptance_criteria": [
+        "Docs explain the shared-memory model",
+        "Doctor validates memory configuration",
+        "Automated tests cover generator and shared-memory foundations"
+      ]
+    }
+  ]
+}

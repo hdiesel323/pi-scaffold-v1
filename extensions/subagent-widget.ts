@@ -21,7 +21,7 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { DynamicBorder } from "@mariozechner/pi-coding-agent";
 import { Container, Text } from "@mariozechner/pi-tui";
 import { Type } from "@sinclair/typebox";
-const { spawn } = require("child_process") as any;
+import { spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -131,7 +131,9 @@ export default function (pi: ExtensionAPI) {
 				state.toolCount++;
 				updateWidgets();
 			}
-		} catch {}
+		} catch (e) {
+			console.error("Failed to parse subagent output line:", e instanceof Error ? e.message : e);
+		}
 	}
 
 	function spawnAgent(

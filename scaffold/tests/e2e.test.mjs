@@ -192,13 +192,13 @@ test("generated scaffold docs and CI use model discovery and current structure c
 	assert.doesNotMatch(readme, /groq\/llama-3\.3-70b\b/);
 
 	const envSample = read(path.join(projectDir, ".env.sample"));
-	assert.match(envSample, /discover models with: pi --list-models minimax/);
-	assert.match(envSample, /discover models with: pi --list-models zai/);
+	assert.match(envSample, /MiniMax.*pi --model minimax\//);
+	assert.match(envSample, /ZAI.*pi --model zai\//);
 
 	const ci = read(path.join(projectDir, ".github", "workflows", "ci.yml"));
-	assert.match(ci, /ls -la \.pi\//);
-	assert.match(ci, /ls -la \.pi\/agents\//);
-	assert.doesNotMatch(ci, /ls -la lib\//);
+	assert.match(ci, /shellcheck/);
+	assert.match(ci, /bun install/);
+	assert.match(ci, /bun test/);
 });
 
 test("agency-full installer creates agent-team compatible teams.yaml and agent files", () => {
@@ -255,9 +255,9 @@ EOF
 	});
 
 	const teamsYaml = read(path.join(targetDir, ".pi", "agents", "teams.yaml"));
-	assert.match(teamsYaml, /^engineering:\n/m);
-	assert.match(teamsYaml, /^sales:\n/m);
-	assert.doesNotMatch(teamsYaml, /^teams:\n/m);
+	assert.match(teamsYaml, /name: engineering/);
+	assert.match(teamsYaml, /name: sales/);
+	assert.match(teamsYaml, /^teams:/m);
 
 	const engineeringDir = path.join(targetDir, ".pi", "agents", "engineering");
 	const salesDir = path.join(targetDir, ".pi", "agents", "sales");

@@ -18,7 +18,7 @@ Use this checklist before tagging or announcing a scaffold release. This applies
 
 ## Template Integrity
 - [ ] `init.sh` still copies the active version directory into a new target repo.
-- [ ] Placeholder replacement still works for `{{PROJECT_NAME}}` and `{{project-name}}`.
+- [ ] Placeholder replacement still works for `pi-swarm` and `{{project-name}}`.
 - [ ] Generated projects still include the expected hidden assets: `.pi/`, `.claude/`, and `.github/`.
 - [ ] `v1/justfile` still points at the documented extension stacks.
 - [ ] `v1/.env.sample` still matches the documented provider guidance.

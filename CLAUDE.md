@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}}
+# pi-swarm
 
 ## Tooling
 - **Package manager**: `bun` (not npm/yarn/pnpm)

@@ -35,7 +35,19 @@ export default function (pi: ExtensionAPI) {
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
+  // Validates repo name format: owner/repo with safe characters only
+  const SAFE_REPO_PATTERN = /^[a-zA-Z0-9_\-\/]+$/;
+
+  function isValidRepo(repo: string): boolean {
+    return SAFE_REPO_PATTERN.test(repo) && !repo.includes("..");
+  }
+
   function getReadme(repo: string): string {
+    // Validate repo name to prevent command injection
+    if (!isValidRepo(repo)) {
+      return `Error: Invalid repository name "${repo}". Expected format: owner/repo (alphanumeric, hyphens, underscores, forward slashes only)`;
+    }
+
     try {
       // Try GitHub CLI first
       const output = execSync(`gh repo view ${repo} --json readme`, { encoding: 'utf-8' });
@@ -44,8 +56,19 @@ export default function (pi: ExtensionAPI) {
       try {
         // Fallback to raw github content curl
         return execSync(`curl -sSL https://raw.githubusercontent.com/${repo}/main/README.md`, { encoding: 'utf-8' });
-      } catch (err) {
-        return `Failed to fetch README for ${repo}`;
+      } catch (err: any) {
+        // Provide more specific error messages
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (errorMsg.includes("Not Found") || errorMsg.includes("404")) {
+          return `Error: Repository "${repo}" not found or README does not exist`;
+        }
+        if (errorMsg.includes("ENOTFOUND") || errorMsg.includes("ECONNREFUSED")) {
+          return `Error: Cannot connect to GitHub. Check your network connection.`;
+        }
+        if (errorMsg.includes("gh: not found") || errorMsg.includes("command not found")) {
+          return `Error: GitHub CLI (gh) is not installed. Install it from https://cli.github.com`;
+        }
+        return `Error: Failed to fetch README for ${repo}: ${errorMsg}`;
       }
     }
   }
